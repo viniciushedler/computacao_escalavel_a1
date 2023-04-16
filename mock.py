@@ -157,7 +157,7 @@ class Road():
     def __init__(self):
 
         # Road parameters
-        self.length = 1000
+        self.length = 40
         self.lanes = 4
         self.road: list[Union[Car, Collision, None]] = [ [None] * self.length for _ in range(self.lanes) ]
         print(f'Lanes: {len(self.road)}')
