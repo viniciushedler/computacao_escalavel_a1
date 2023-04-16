@@ -1,6 +1,6 @@
 import random
 import os
-
+from ansi import ANSI
 
 # about scales, we'll be simulating roads in Brazil
 # so, the base parameters are as follow
@@ -29,18 +29,25 @@ import os
 class Road():
 
     def __init__(self):
+
         self.length = 100
-        self.lanes = 10
+        self.lanes = 4
         self.road = [ [0] * self.length for _ in range(self.lanes) ]
-        self.removal_time = 3
+        self.removal_time = 10
+        
+        self.risk = 0.5
+        self.new_car_prob = 0.7
+
         self.minimum_speed = 3
         self.maximum_speed = 6
         self.maximum_acceleration = 1
         self.minimum_acceleration = -3
+
         self.colision_positions = []
         self.colision_timers = []
         self.cycle_total = 0
         self.colision_total = 0
+        
 
     def create_car(self, lane=None):
         if lane==None:
@@ -104,6 +111,15 @@ class Road():
         if free:
             self.road[lane][length + dist] = self.road[lane][length]
             self.road[lane][length] = 0
+
+        # if it is blocked, but acts regardlessly
+        elif random.random() > 1 - self.risk:
+            print(f'COLISION! At {lane}, {length + dist}')
+            self.road[lane][length + dist] = -1
+            self.colision_positions.append((lane, length+dist))
+            self.colision_timers.append(self.removal_time)
+            self.colision_total += 1
+            self.road[lane][length] = 0
         
         # if it couldn't move at first, tries swapping lanes and
         # deaccelerating in order not to crash
@@ -151,20 +167,12 @@ class Road():
                 self.move(lane, length)
     
     def removal(self):
-        i = 0
-        while i<len(self.colision_positions):
-            if self.colision_timers[i] > 0:
-                break
-            lane, length = self.colision_positions[i]
-            if self.road[lane][length] == -1:
-                self.road[lane][length] = 0
-            self.colision_positions = self.colision_positions[1:]
-            self.colision_timers = self.colision_timers[1:]
-            i += 1
-
-        while i < len(self.colision_positions):
+        for i in range(len(self.colision_timers)):
             self.colision_timers[i] -= 1
-            i += 1
+            if self.colision_timers[i] <= 0:
+                lane, length = self.colision_positions[i]
+                if self.road[lane][length] == -1:
+                    self.road[lane][length] = 0
 
 
     def cycle(self):
@@ -175,18 +183,31 @@ class Road():
                 self.accelerate(lane, length)
                 self.move(lane, length)
 
-        while random.random()>.3:
+        while random.random() > 1 - (self.new_car_prob):
             self.create_car()
         
         self.cycle_total += 1
+
+    # def __str__(self):
+    #     string = ""
+    #     for lane in self.road:
+    #         for car in lane:
+    #             if car>=0:
+    #                 string += " "
+    #             string += str(car) + " "
+    #         string += "\n"
+    #     return string
 
     def __str__(self):
         string = ""
         for lane in self.road:
             for car in lane:
-                if car>=0:
-                    string += " "
-                string += str(car) + " "
+                if car == 0:
+                    string += " . "
+                elif car>0:
+                    string += " " + ANSI.colored_str(str(car), 'green') + " "
+                elif car == -1:
+                    string += ANSI.colored_str(str(car), 'red') + " "
             string += "\n"
         return string
 
