@@ -207,13 +207,22 @@ class Car():
         self.length = length_new
 
 class Road():
+    '''
+        Road class.
 
+        Parameters:
+            length: The length of the road.
+            lanes: The number of lanes.
+            road: The road itself, a list of lists of cars and collisions.
+            collision_countdown: The number of cycles a collision lasts.
+            car_spawn_prob: The probability of a car spawning in a lane in a cycle.
+    '''
     def __init__(self):
 
         # Road parameters
         self.length = 40
         self.lanes = 4
-        self.road: list[Union[Car, Collision, None]] = [ [None] * self.length for _ in range(self.lanes) ]
+        self.road: list[Union[Car, Collision, None]]=[[None]*self.length for _ in range(self.lanes)]
         print(f'Lanes: {len(self.road)}')
         print(f'Length: {len(self.road[0])}')
         self.collision_countdown = 9
@@ -223,34 +232,40 @@ class Road():
         self.collisions: list[Collision] = []
         self.cycle_total = 0
         self.collision_total = 0
-    
 
     def create_cars(self):
-        
+        '''
+            Creates cars in the road.
+        '''
+
         # For every lane, choose whether to spawn a car
         for lane in range(self.lanes):
-            if random.random() > 1 - self.car_spawn_prob and self.road[lane][0] == None:
+            if random.random() > 1 - self.car_spawn_prob and self.road[lane][0] is None:
                 self.road[lane][0] = Car(self, lane)
-    
 
     def is_empty(self, lane: int, length:int) -> bool:
-        return (self.road[lane][length] == None)
-
+        '''
+            Returns whether a position is empty or not.
+        '''
+        #return (self.road[lane][length] == None)
+        return self.road[lane][length] is None
 
     def move(self, position_old, position_new):
-        # This function EFFECTIVELY MOVES the car inside it's register
-        # There are four possibilities
-        #   position_new is beyond the end of the road: just pass (will remove car at the end)
-        #   position_new is empty: moves the car normally
-        #   position_new contains a car: creates a collision
-        #   position_new contains a collision: adds the car to the collision
-        # After any of these, the car is removed from it's old position
-        
+        '''
+            This function EFFECTIVELY MOVES the car inside it's register
+            There are four possibilities:
+                position_new is beyond the end of the road: just pass (will remove car at the end)
+                position_new is empty: moves the car normally
+                position_new contains a car: creates a collision
+                position_new contains a collision: adds the car to the collision
+
+            By the end, the car will be removed from it's old position
+        '''
         # Create some variables for readability
         lane_o, length_o = position_old
         lane_n, length_n = position_new
         object_o = self.road[lane_o][length_o]
-        
+
         if length_n >= self.length:
             print(f'case 0: old {position_old} new {position_new}')
             self.road[lane_o][length_o] = None
@@ -265,13 +280,14 @@ class Road():
         # elif True:
             # Creates a copy of the car in the new position
             self.road[lane_n][length_n] = object_o
-        
+
         # Check if the position contains another car
-        elif type(object_n) == Car:
+        #elif type(object_n) == Car:
+        elif isinstance(object_n, Car):
             print(f'case 3: old {position_old} new {position_new}')
             # Support variable
             # Note: it is important that the new position car comes first in the list
-            # This is because as of this moment the old position car still has it's old position saved in it
+            # Because, at this moment, the old position car still has it's old position saved in it
             # The first car position is used when creating the 'Collision' object
             collided_cars = [
                 object_n,
@@ -281,66 +297,85 @@ class Road():
             self.road[lane_n][length_n] = Collision(collided_cars, self.collision_countdown)
             self.collisions.append(self.road[lane_n][length_n])
             self.collision_total += 1
-        
+
         # Check if the position contains a collision already
-        elif type(object_n) == Collision:
+        #elif type(object_n) == Collision:
+        elif isinstance(object_n, Collision):
             print(f'case 4: old {position_old} new {position_new}')
             self.road[lane_n][length_n].add(object_o)
             self.collision_total += 1
-        
+
         # If didn't fall into any condition before, raise an error
         else:
-            raise ValueError(f"Value at ({lane_n}, {length_n}) is {type(object_n)}. Expected None, Car or Collision")
+            raise ValueError(f"Value at ({lane_n}, {length_n}) is {type(object_n)}." +
+                " Expected None, Car or Collision")
 
         # Removes the occurence of the car in the old position
         self.road[lane_o][length_o] = None
-    
+
 
     def all_decide_movement(self):
+        '''
+            Calls the 'decide_movement' method of every car in the road.
+        '''
         for length in range(self.length, -1, -1):
             for lane in range(self.lanes):
                 pseudo_car = self.road[lane][length]
-                if type(pseudo_car) == Car:
+                #if type(pseudo_car) == Car:
+                if isinstance(pseudo_car, Car):
                     pseudo_car.decide_movement()
-    
 
     def remove_collisions(self):
+        '''
+            Removes collisions that have ended.
+        '''
         for collision in self.collisions:
             collision.countdown -= 1
             if collision.countdown <= 0:
-                if type(self.road[collision.lane][collision.length]) == Collision:
+            #if type(self.road[collision.lane][collision.length]) == Collision:
+                if isinstance(self.road[collision.lane][collision.length], Collision):
                     self.road[collision.lane][collision.length] = None
 
 
     def cycle(self):
+        '''
+            Performs a cycle of the road.
+
+            Calls remove_collisions once a cycle.
+        '''
         self.remove_collisions()
 
         for length in range(self.length - 1, -1, -1):
             for lane in range(self.lanes):
                 pseudo_car = self.road[lane][length]
-                if type(pseudo_car) == Car:
+                #if type(pseudo_car) == Car:
+                if isinstance(pseudo_car, Car):
                     pseudo_car.accelerate()
                     pseudo_car.decide_movement()
-        
+
         self.create_cars()
         self.cycle_total += 1
-
 
     def __str__(self):
         string = ""
         for lane in self.road:
             for pseudo_car in lane:
-                if pseudo_car == None:
+                if pseudo_car is None:
                     string += " . "
-                elif type(pseudo_car) == Car:
+                #elif type(pseudo_car) == Car:
+                elif isinstance(pseudo_car, Car):
                     string += " " + ANSI.colored_str(str(pseudo_car.speed), 'green') + " "
-                elif type(pseudo_car) == Collision:
+                #elif type(pseudo_car) == Collision:
+                elif isinstance(pseudo_car, Collision):
                     string += " " + ANSI.colored_str(str(pseudo_car.countdown), 'red') + " "
             string += "\n"
         return string
 
 
     def loop(self):
+        '''
+            Loops the road.
+        '''
         while True:
             #os.system('cls')
             self.cycle()
@@ -351,20 +386,20 @@ class Road():
 
 
     def path_is_empty(self, lane, length_start, length_end) -> tuple[bool, int]:
-        # returns whether the path is empty and the maximum length reached
-
-        for l in range(length_start, length_end+1):
-            
+        '''
+            Returns whether a path is empty or not and the maximum length reached.
+        '''
+        # pylint: disable=invalid-name
+        for l in range(length_start, length_end + 1):
             # Check whether the length is already out of the road
             if l >= self.length:
                 return True, l
-            
+
             # Check whether length_n is empty
             if not self.is_empty(lane, l):
                 return False, l
-        
-        return True, l
 
+        return True, l
 
 
 if __name__ == "__main__":
