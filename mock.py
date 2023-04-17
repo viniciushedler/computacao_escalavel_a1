@@ -1,3 +1,13 @@
+'''
+    This file contains the classes that simulate the road and the cars.
+
+    The Road class contains the road itself, and the cars on it.
+
+    The Car class contains the car itself, and the logic to decide what to do.
+
+    The Collision class contains the cars that collided, and the countdown until they disappear.
+'''
+
 import random
 import os
 from ansi import ANSI
