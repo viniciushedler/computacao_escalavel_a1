@@ -10,18 +10,30 @@
 
 import random
 import os
-from ansi import ANSI
 from typing import Union
-
+from ansi import ANSI
 
 class Collision():
+    '''
+        This class contains the cars that collided, and the countdown until they disappear.
+
+        Attributes:
+            collided_cars: A list containg the cars that collided.
+            countdown: The countdown until the collision disappears.
+
+        Methods:
+            add: Adds a car to the collision list.
+    '''
 
     def __init__(self, collided_cars: list['Car'], countdown: int):
         self.collided_cars = collided_cars
         self.countdown = countdown
         self.lane, self.length = self.pos = collided_cars[0].pos
-    
+
     def add(self, car):
+        """
+            Adds a car to the collision list.
+        """
         self.collided_cars.append(car)
 
 
