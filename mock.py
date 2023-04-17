@@ -48,7 +48,7 @@ class Car():
             speed_max: The maximum speed the car can have.
             acceleration_max: The maximum acceleration the car can have.
             acceleration_min: The minimum acceleration the car can have.
-            lange_change_prob: The probability of changing lanes.
+            lange_change_prob: The probability of changing lanes arbitrarily
 
             _lane: The lane the car is on.
     '''
@@ -80,6 +80,10 @@ class Car():
 
     @pos.setter
     def pos(self, new_value: tuple[int]):
+        '''
+            Sets the position attribute of the car and then update the car's position in it's road attribute.
+            Also calls a lane and length update
+        '''
         # Tells the road to move the car in it
         self.road.move(self._pos, new_value)
 
@@ -101,7 +105,9 @@ class Car():
 
     @lane.setter
     def lane(self, new_value):
-
+        '''
+            Updates the car's lane and calls a position update
+        '''
         # Saves the new position of the car
         self._lane = new_value
         # Saves in self.pos as well
@@ -117,6 +123,9 @@ class Car():
 
     @length.setter
     def length(self, new_value):
+        '''
+            Updates the car's length and calls a position update
+        '''
         # Saves the new position of the car
         self._length = new_value
         # Saves in self.pos as well
@@ -146,7 +155,7 @@ class Car():
 
     def change_lane(self, force = False):
         '''
-            Changes the lane of the car.
+            Decides whether to change lanes, considering availability of the lane and whether the driver is being careful
         '''
 
         available_lanes = []
@@ -175,15 +184,18 @@ class Car():
 
             This function checks if there is something on the way.
             If there's nothing, it moves foward.
-            And if there's something, it tries to change lanes, which can cause a collision or not.
+            And if there's something, it tries to change lanes, which may cause a collision.
 
-            If it changes lanes and there's nothing, it moves foward. Otherwise, it deaccelerates.
+            If it changes lanes and it's way is still obstructed it deaccelerates.
+
+            Afterwards, moves forward
             
-            At the end, independently, decide whether to change lanes (again)
+            At the end, independently, changes lane arbitrarily
         '''
 
         # 'free' variable, will decide whether to move straight or do something else
         free = True
+        force = random.random() > 1 - self.risk
 
         # Check if the path is empty from it's current position to it's current_position + speed
         free, length_new = self.road.path_is_empty(
@@ -193,7 +205,7 @@ class Car():
         )
 
         # Nothing was on the way or wanted to collide: move forward
-        if free or random.random() > 1 - self.risk:
+        if free or force:
             self.length = length_new
             return
         # The following code only executes if the car didn't move already
@@ -205,6 +217,10 @@ class Car():
         # Now, with new lane/speed (or not), gets maximum length traveled
         _, length_new = self.road.path_is_empty(self.lane, self.length +1, self.length + self.speed)
         self.length = length_new
+
+        # Arbitrary lane change
+        if random.random() > 1 - self.lange_change_prob:
+            self.change_lane(force)
 
 class Road():
     '''
@@ -247,19 +263,18 @@ class Road():
         '''
             Returns whether a position is empty or not.
         '''
-        #return (self.road[lane][length] == None)
         return self.road[lane][length] is None
 
     def move(self, position_old, position_new):
         '''
-            This function EFFECTIVELY MOVES the car inside it's register
-            There are four possibilities:
-                position_new is beyond the end of the road: just pass (will remove car at the end)
+            Inside self.road, copies the car at position_old to position_new and then removes it from position_old
+            There are four possibilities depending on position_new:
+                position_new is beyond the end of the road: removes the car and returns
                 position_new is empty: moves the car normally
                 position_new contains a car: creates a collision
                 position_new contains a collision: adds the car to the collision
 
-            By the end, the car will be removed from it's old position
+            At the end the car will be removed from it's old position
         '''
         # Create some variables for readability
         lane_o, length_o = position_old
@@ -277,12 +292,10 @@ class Road():
         # Check if new position is empty
         if self.is_empty(lane_n, length_n):
             print(f'case 2: old {position_old} new {position_new}')
-        # elif True:
             # Creates a copy of the car in the new position
             self.road[lane_n][length_n] = object_o
 
         # Check if the position contains another car
-        #elif type(object_n) == Car:
         elif isinstance(object_n, Car):
             print(f'case 3: old {position_old} new {position_new}')
             # Support variable
@@ -299,7 +312,6 @@ class Road():
             self.collision_total += 1
 
         # Check if the position contains a collision already
-        #elif type(object_n) == Collision:
         elif isinstance(object_n, Collision):
             print(f'case 4: old {position_old} new {position_new}')
             self.road[lane_n][length_n].add(object_o)
@@ -317,11 +329,12 @@ class Road():
     def all_decide_movement(self):
         '''
             Calls the 'decide_movement' method of every car in the road.
+            Note the order this is done: car farthest from the start first, ti-breaking by lanes (smallest first)
         '''
         for length in range(self.length, -1, -1):
             for lane in range(self.lanes):
+                # In this code, any 'pseudo_car' instance is a cell of the road which type we don't know
                 pseudo_car = self.road[lane][length]
-                #if type(pseudo_car) == Car:
                 if isinstance(pseudo_car, Car):
                     pseudo_car.decide_movement()
 
@@ -332,7 +345,6 @@ class Road():
         for collision in self.collisions:
             collision.countdown -= 1
             if collision.countdown <= 0:
-            #if type(self.road[collision.lane][collision.length]) == Collision:
                 if isinstance(self.road[collision.lane][collision.length], Collision):
                     self.road[collision.lane][collision.length] = None
 
@@ -341,7 +353,7 @@ class Road():
         '''
             Performs a cycle of the road.
 
-            Calls remove_collisions once a cycle.
+            Calls remove_collisions once every cycle.
         '''
         self.remove_collisions()
 
@@ -357,6 +369,13 @@ class Road():
         self.cycle_total += 1
 
     def __str__(self):
+        '''
+            Creates a visualization of 'self.road'
+            In it:
+                Nones are represented by '.' in order no to draw attention
+                Cars are colored green and represented by their current speed
+                Collisions are colored red and represented by their countdown
+        '''
         string = ""
         for lane in self.road:
             for pseudo_car in lane:
@@ -374,7 +393,8 @@ class Road():
 
     def loop(self):
         '''
-            Loops the road.
+            Calls cycle, prints data, waits for an input to continue
+            Loops while true
         '''
         while True:
             #os.system('cls')
