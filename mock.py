@@ -14,6 +14,8 @@ class Collision():
     def add(self, car):
         self.collided_cars.append(car)
 
+
+
 class Car():
 
     def __init__(self, road: 'Road', lane: int):
@@ -310,6 +312,7 @@ class Road():
                 return False, l
         
         return True, l
+
 
 
 if __name__ == "__main__":
