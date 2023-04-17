@@ -31,17 +31,29 @@ class Collision():
         self.lane, self.length = self.pos = collided_cars[0].pos
 
     def add(self, car):
-        """
+        '''
             Adds a car to the collision list.
-        """
+        '''
         self.collided_cars.append(car)
 
 
-
 class Car():
+    '''
+        This class contains the car itself, and the logic to decide what to do.
+
+        Attributes:
+            road: The road the car is on.
+            risk: The risk of collision the car has.
+            speed_min: The minimum speed the car can have.
+            speed_max: The maximum speed the car can have.
+            acceleration_max: The maximum acceleration the car can have.
+            acceleration_min: The minimum acceleration the car can have.
+            lange_change_prob: The probability of changing lanes.
+
+            _lane: The lane the car is on.
+    '''
 
     def __init__(self, road: 'Road', lane: int):
-        
         # Road
         self.road = road
 
@@ -61,14 +73,16 @@ class Car():
 
     @property
     def pos(self):
+        '''
+            Returns the position of the car.
+        '''
         return self._pos
 
     @pos.setter
     def pos(self, new_value: tuple[int]):
-        
         # Tells the road to move the car in it
         self.road.move(self._pos, new_value)
-        
+
         # Saves the new position of the car
         self._pos = new_value
         # Saves in the other variables as well
@@ -80,8 +94,11 @@ class Car():
 
     @property
     def lane(self):
+        '''
+            Returns the lane the car is on.
+        '''
         return self._lane
-    
+
     @lane.setter
     def lane(self, new_value):
 
@@ -90,15 +107,16 @@ class Car():
         # Saves in self.pos as well
         if self.pos[0] != new_value:
             self.pos = new_value, self.length
-    
 
     @property
     def length(self):
+        '''
+            Returns the length the car is on.
+        '''
         return self._length
-    
+
     @length.setter
     def length(self, new_value):
-
         # Saves the new position of the car
         self._length = new_value
         # Saves in self.pos as well
@@ -107,6 +125,12 @@ class Car():
 
 
     def accelerate(self):
+        '''
+            Accelerates the car.
+
+            Chooses a random acceleration, and adds it to the speed.
+            Corrects the speed if it's below the minimum or above the maximum.
+        '''
 
         # Chooses how much to accelerate
         acc = random.choice([-1, 0, 1, 2])
@@ -119,17 +143,22 @@ class Car():
             self.speed = self.speed_min
         elif self.speed > self.speed_max:
             self.speed = self.speed_max
-    
 
     def change_lane(self, force = False):
-        
+        '''
+            Changes the lane of the car.
+        '''
+
         available_lanes = []
-        
+
         # If can turn left
         if self.lane > 0 and (force or self.road.is_empty(self.lane-1, self.length)):
             available_lanes.append(self.lane-1)
         # If can turn right
-        if self.lane < (self.road.lanes - 1) and (force or self.road.is_empty(self.lane + 1, self.length)):
+        if self.lane < (self.road.lanes - 1) and (force or self.road.is_empty(
+            self.lane + 1,
+            self.length)
+        ):
             available_lanes.append(self.lane+1)
 
         # Returns if no lane is available
@@ -138,28 +167,31 @@ class Car():
 
         # Moves to a new lane
         self.lane = random.choice(available_lanes)
-        
         return True
-    
-    
+
     def decide_movement(self):
-        # Some possibilities:
-        # Nothing is on the way: move
-        # Something is on the way:
-        #   Try to change lane:
-        #       Changed lanes into something: Collision
-        #       Changed Freely
-        #   then, decide to go ahead
-        #       Nothing is on the way: move
-        #       Something is on the way: deaccelerate
-        # At the end, independently, decide whether to change lanes (again)
+        '''
+            Decides which movement to do.
+
+            This function checks if there is something on the way.
+            If there's nothing, it moves foward.
+            And if there's something, it tries to change lanes, which can cause a collision or not.
+
+            If it changes lanes and there's nothing, it moves foward. Otherwise, it deaccelerates.
+            
+            At the end, independently, decide whether to change lanes (again)
+        '''
 
         # 'free' variable, will decide whether to move straight or do something else
         free = True
 
         # Check if the path is empty from it's current position to it's current_position + speed
-        free, length_new = self.road.path_is_empty(self.lane, self.length +1, self.length + self.speed)
-            
+        free, length_new = self.road.path_is_empty(
+            self.lane,
+            self.length +1,
+            self.length + self.speed
+        )
+
         # Nothing was on the way or wanted to collide: move forward
         if free or random.random() > 1 - self.risk:
             self.length = length_new
@@ -173,8 +205,6 @@ class Car():
         # Now, with new lane/speed (or not), gets maximum length traveled
         _, length_new = self.road.path_is_empty(self.lane, self.length +1, self.length + self.speed)
         self.length = length_new
-
-
 
 class Road():
 
