@@ -9,6 +9,7 @@
 '''
 
 import random
+import string
 import secrets
 import os
 from typing import Union
@@ -80,7 +81,8 @@ class Car():
         self.road = road
 
         # Car parameters
-        self.plate = secrets.token_urlsafe(4)
+        #self.plate = secrets.token_urlsafe(4)
+        self.plate = ''.join([random.choice(string.ascii_uppercase) for _ in range(3)]) + str(random.randint(0,9)) + random.choice(string.ascii_uppercase) + str(random.randint(0,9)) + str(random.randint(0,9))
         self.model = model_from_plate(self.plate)
         self.risk = RISK
         self.speed_min = MODELS[self.model]["SPEED_MIN"]
@@ -285,7 +287,8 @@ class Road():
         self.collision_countdown = COLLISION_COUNTDOWN
         self.car_spawn_prob = CAR_SPAWN_PROB
         self.speed_limit = SPEED_LIMIT
-        self.name = secrets.token_urlsafe(4)
+        #self.name = secrets.token_urlsafe(4)
+        self.name = "BR-" + str(random.randint(100, 999))
 
         # Road variables
         self.collisions: list[Collision] = []
