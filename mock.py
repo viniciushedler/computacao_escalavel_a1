@@ -9,9 +9,11 @@
 '''
 
 import random
+import secrets
 import os
 from typing import Union
 from ansi import ANSI
+from parameters import *
 
 class Collision():
     '''
@@ -35,6 +37,7 @@ class Collision():
             Adds a car to the collision list.
         '''
         self.collided_cars.append(car)
+        self.countdown += 1
 
 
 class Car():
@@ -58,12 +61,13 @@ class Car():
         self.road = road
 
         # Car parameters
-        self.risk = 0.5
-        self.speed_min = 3
-        self.speed_max = 6
-        self.acceleration_max = 2
-        self.acceleration_min = -2
-        self.lange_change_prob = 0.2
+        model = random.choice(list(MODELS.keys()))
+        self.risk = RISK
+        self.speed_min = MODELS[model]["SPEED_MIN"]
+        self.speed_max = MODELS[model]["SPEED_MAX"]
+        self.acceleration_min = MODELS[model]["ACCELERATION_MIN"]
+        self.acceleration_max = MODELS[model]["ACCELERATION_MAX"]
+        self.lange_change_prob = LANE_CHANGE_PROB
 
         # Car variables
         self._lane, self._length = self._pos = (lane, 0)
@@ -142,7 +146,7 @@ class Car():
         '''
 
         # Chooses how much to accelerate
-        acc = random.choice([-1, 0, 1, 2])
+        acc = random.randint(self.acceleration_min, self.acceleration_max)
 
         # Accelerates
         self.speed += acc
@@ -237,17 +241,22 @@ class Road():
 
         # Road parameters
         self.length = 40
-        self.lanes = 4
+        self.lanes = LANES
         self.road: list[Union[Car, Collision, None]]=[[None]*self.length for _ in range(self.lanes)]
         print(f'Lanes: {len(self.road)}')
         print(f'Length: {len(self.road[0])}')
-        self.collision_countdown = 9
-        self.car_spawn_prob = 0.2
+        self.collision_countdown = COLLISION_COUNTDOWN
+        self.car_spawn_prob = CAR_SPAWN_PROB
+        self.speed_limit = SPEED_LIMIT
+        self.name = secrets.token_urlsafe(4)
 
         # Road variables
         self.collisions: list[Collision] = []
         self.cycle_total = 0
         self.collision_total = 0
+
+        # Debug
+        self.counter = 0
 
     def create_cars(self):
         '''
@@ -263,6 +272,8 @@ class Road():
         '''
             Returns whether a position is empty or not.
         '''
+        if length >= self.length:
+            return True
         return self.road[lane][length] is None
 
     def move(self, position_old, position_new):
@@ -276,16 +287,17 @@ class Road():
 
             At the end the car will be removed from it's old position
         '''
+
         # Create some variables for readability
         lane_o, length_o = position_old
         lane_n, length_n = position_new
         object_o = self.road[lane_o][length_o]
 
-        if length_n >= self.length:
-            print(f'case 0: old {position_old} new {position_new}')
+        if length_n >= self.length - 1:
             self.road[lane_o][length_o] = None
+            print(f'case 0: old {position_old} new {position_new}')
             return
-
+        
         object_n = self.road[lane_n][length_n]
         # Check if new position is beyond the road
 
@@ -341,6 +353,8 @@ class Road():
     def remove_collisions(self):
         '''
             Removes collisions that have ended.
+            Deprecated.
+            The removal is now being done at self.cycle(), in order to use the self.road traversal
         '''
         for collision in self.collisions:
             collision.countdown -= 1
@@ -355,7 +369,7 @@ class Road():
 
             Calls remove_collisions once every cycle.
         '''
-        self.remove_collisions()
+        #self.remove_collisions()
 
         for length in range(self.length - 1, -1, -1):
             for lane in range(self.lanes):
@@ -364,6 +378,10 @@ class Road():
                 if isinstance(pseudo_car, Car):
                     pseudo_car.accelerate()
                     pseudo_car.decide_movement()
+                elif isinstance(pseudo_car, Collision):
+                    pseudo_car.countdown -= 1
+                    if pseudo_car.countdown <= 0:
+                        self.road[lane][length] = None
 
         self.create_cars()
         self.cycle_total += 1
@@ -397,12 +415,21 @@ class Road():
             Loops while true
         '''
         while True:
-            #os.system('cls')
-            self.cycle()
-            print(self)
-            print(f"Cycles: {self.cycle_total}")
-            print(f"Collisions: {self.collision_total}")
-            input()
+            if self.counter > 0:
+                self.cycle()
+                self.counter -= 1
+            else:    
+                #os.system('cls')
+                self.cycle()
+                print(self)
+                print(f"Cycles: {self.cycle_total}")
+                print(f"Collisions: {self.collision_total}")
+                command = input()
+                while command != '':
+                    # la, le = pos.split(',')
+                    # print(self.road[int(la)][int(le)])
+                    exec(command)
+                    command = input()
 
 
     def path_is_empty(self, lane, length_start, length_end) -> tuple[bool, int]:
@@ -410,15 +437,18 @@ class Road():
             Returns whether a path is empty or not and the maximum length reached.
         '''
         # pylint: disable=invalid-name
+        
+        l = self.length - 1
+
         for l in range(length_start, length_end + 1):
             # Check whether the length is already out of the road
             if l >= self.length:
-                return True, l
+                return True, self.length - 1
 
             # Check whether length_n is empty
             if not self.is_empty(lane, l):
                 return False, l
-
+        
         return True, l
 
 
