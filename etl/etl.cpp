@@ -34,7 +34,7 @@ void process_file_line() {
     // faz o processamento aqui
     string car_plate = process_line.substr(0, 8);
     coords car_pos = coords(process_line.substr(9, 15));
-    roads_obj.update_car("A", coords(1, 1), process_road);
+    roads_obj.update_car(car_plate, car_pos, process_road);
 }
 
 int read_f(string file_name){
