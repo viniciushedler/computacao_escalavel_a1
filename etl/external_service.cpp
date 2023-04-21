@@ -21,6 +21,7 @@ class external_service {
         float chance_of_error = 0.1;    // chance de dar erro no serviço
         float chance_of_delay = 0.1;    // chance de dar delay no serviço
         float max_delay_time = 2.0;     // tempo máximo de delay em segundos
+        int max_queue_size = 5;         // tamanho máximo da fila
 
         // resultado da query
         string name;
@@ -31,13 +32,24 @@ class external_service {
         mutex service_mutex;
         int serving_now = 0;
         int last_ticket = 0;
-        unordered_map<string*, vector<string>> database;
+        int queue_size = 0;
+        unordered_map<string, vector<string>> database;
 
-        bool query_vehicle(string *plate) {
+        external_service(int max_queue_size) {
+            this->max_queue_size = max_queue_size;
+        }
+
+        bool query_vehicle(string plate) {
             int service_ticket;
             {  // cria um escopo para mexer nas variáveis globais
                 lock_guard<mutex> guard(service_mutex);
                 service_ticket = this->last_ticket++;
+
+                // verifica se a fila está cheia
+                if (this->queue_size >= this->max_queue_size) {
+                    return false;  // retorna erro
+                }
+                this->queue_size++;
             }
             while (this->serving_now != service_ticket) {
                 // espera o serviço ser liberado
@@ -60,6 +72,11 @@ class external_service {
             // calcula a chance de erro
             chance = dis(gen);
             if (chance < this->chance_of_error) {
+                {  // cria um escopo para mexer nas variáveis globais
+                    lock_guard<mutex> guard(service_mutex);
+                    this->serving_now++;
+                    this->queue_size--;
+                }
                 return false;  // retorna erro
             }
 
@@ -70,6 +87,7 @@ class external_service {
                 this->model = this->database[plate][1];
                 this->year = this->database[plate][2];
             } else {
+                // <! Obs.: a descrição do trabalho diz que deve sair de um arquivo >
                 // cria novos dados para o veículo
                 vector<string> first_names = {"João", "Maria", "José", "Ana", "Pedro", "Paulo", "Carlos", "Mariana", "Rafael", "Gabriel"};
                 vector<string> last_names = {"Silva", "Santos", "Souza", "Oliveira", "Pereira", "Rodrigues", "Almeida", "Nascimento", "Lima", "Ferreira"};
@@ -92,6 +110,11 @@ class external_service {
                 this->year = year;
                 database[plate] = {name, model, year};
             }
+            { // cria um escopo para mexer nas variáveis globais
+                lock_guard<mutex> guard(service_mutex);
+                this->serving_now++;
+                this->queue_size--;
+            }
             return true;
         }
 
@@ -108,7 +131,19 @@ class external_service {
         }
 };
 
-int main() {
+int __main() { 
+    // testa a classe de external service
+    external_service service(5);
+    vector<string> plates = {"ABC1234", "DEF5678", "GHI9012", "JKL3456", "MNO7890", "PQR1234", "STU5678", "VWX9012", "YZA3456", "ABC1234"};
+    for (string plate : plates) {
+        cout << "Querying for plate " << plate << ":" << endl;
+        service.query_vehicle(plate);
+        cout << service.get_name() << endl;
+        cout << service.get_model() << endl;
+        cout << service.get_year() << endl;
+        cout << "--------------------------" << endl;
+    }
+    return 0;
 }
 
 #endif // EXTERNAL_SERVICE_CPP
