@@ -13,16 +13,16 @@ import secrets
 import os
 from typing import Union
 from ansi import ANSI
-from parameters import *
+from parameters import * #pylint:disable = wildcard-import, unused-wildcard-import
 
 def model_from_plate(plate):
     '''
     Returns the name of a car model given a plate
     '''
-    
+
     # Turns the plate to an integer by summing the ascii value of each character
     n = sum([ ord(s) for s in plate ])
-    
+
     # Gets an ordered list of the car model names
     keys = list(MODELS.keys())
     keys.sort()
@@ -105,7 +105,8 @@ class Car():
     @pos.setter
     def pos(self, new_value: tuple[int]):
         '''
-            Sets the position attribute of the car and then update the car's position in it's road attribute.
+            Sets the position attribute of the car and then
+            update the car's position in it's road attribute.
             Also calls a lane and length update
         '''
         # Tells the road to move the car in it
@@ -179,7 +180,8 @@ class Car():
 
     def change_lane(self, force = False):
         '''
-            Decides whether to change lanes, considering availability of the lane and whether the driver is being careful
+            Decides whether to change lanes, considering 
+            availability of the lane and whether the driver is being careful
         '''
 
         available_lanes = []
@@ -313,7 +315,8 @@ class Road():
 
     def move(self, position_old, position_new):
         '''
-            Inside self.road, copies the car at position_old to position_new and then removes it from position_old
+            Inside self.road, copies the car at position_old
+            to position_new and then removes it from position_old
             There are four possibilities depending on position_new:
                 position_new is beyond the end of the road: removes the car and returns
                 position_new is empty: moves the car normally
@@ -332,7 +335,7 @@ class Road():
             self.road[lane_o][length_o] = None
             print(f'case 0: old {position_old} new {position_new}')
             return
-        
+
         object_n = self.road[lane_n][length_n]
         # Check if new position is beyond the road
 
@@ -443,7 +446,7 @@ class Road():
                 elif isinstance(pseudo_car, Collision):
                     string += " " + ANSI.colored_str(str(pseudo_car.countdown), 'red') + " "
             string += "\n"
-        
+
         for _ in range(self.length):
             string += "---"
         string += '\n'
@@ -463,6 +466,19 @@ class Road():
             string += "\n"
         return string
 
+    def create_output(self):
+        '''
+            This function creates a file called 'output.txt' and writes the data of the road to it
+            This file will be extracted by the ETL process
+        '''
+        output = open("output.txt", 'a', encoding='utf-8')
+        output.write(f"> {self.name}\n")
+
+        for lane in range(self.lanes_total):
+            for length in range(self.length):
+                if isinstance(self.road[lane][length], Car):
+                    output.write(f"{self.road[lane][length].plate} 00{lane},{length:03}\n")
+        output.close()
 
     def loop(self):
         '''
@@ -473,7 +489,7 @@ class Road():
             if self.counter > 0:
                 self.cycle()
                 self.counter -= 1
-            else:    
+            else:
                 #os.system('cls')
                 self.cycle()
                 print(self)
@@ -485,6 +501,8 @@ class Road():
                     # print(self.road[int(la)][int(le)])
                     exec(command)
                     command = input()
+            # call the create_output function
+            self.create_output()
 
 
     def path_is_empty(self, lane, length_start, length_end) -> tuple[bool, int]:
@@ -492,7 +510,7 @@ class Road():
             Returns whether a path is empty or not and the maximum length reached.
         '''
         # pylint: disable=invalid-name
-        
+
         l = self.length - 1
 
         for l in range(length_start, length_end + 1):
@@ -503,7 +521,7 @@ class Road():
             # Check whether length_n is empty
             if not self.is_empty(lane, l):
                 return False, l
-        
+
         return True, l
 
 
