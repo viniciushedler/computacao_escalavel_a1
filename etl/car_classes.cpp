@@ -101,6 +101,20 @@ class road {
 
     // Retorna o carro com a placa especificada
     car* find_car(string plate) { return cars.at(plate); };
+
+    // Retorna a quantidade de carros
+    int get_cars_count() { return cars.size(); };
+
+    // Retorna a quantidade de carros acima do limite de velocidade
+    int get_speeding_cars_count() {
+        int speeding_cars_count = 0;
+        for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
+            if (curr_car->second->speed > this->speed_limit) {
+                speeding_cars_count++;
+            }
+        }
+        return speeding_cars_count;
+    };
 };
 
 class roads {
@@ -129,12 +143,34 @@ class roads {
         // atualiza a posição do carro
         this_car->update_position(position);
 
+
         /* <! Fazer cálculos de atualização do carro !>
         aqui a gente vai mudar a posição dele,
         tentar calcular velocidade e aceleração,
         computar risco de colisão, essas coisas.
         */
     }
+
+    // Retorna a quatidade de rodovias
+    int get_roads_count() { return roads_list.size(); };
+
+    // Retorna o número de carros das rodovias (soma de todos os carros)
+    int get_cars_count() {
+        int cars_count = 0;
+        for (auto curr_road = roads_list.begin(); curr_road != roads_list.end(); ++curr_road) {
+            cars_count += curr_road->second->get_cars_count();
+        }
+        return cars_count;
+    };
+
+    // Retorna o número de veículos acima do limite de velocidade (soma de todos os carros acima do limite)
+    int get_speeding_cars_count() {
+        int speeding_cars_count = 0;
+        for (auto curr_road = roads_list.begin(); curr_road != roads_list.end(); ++curr_road) {
+            speeding_cars_count += curr_road->second->get_speeding_cars_count();
+        }
+        return speeding_cars_count;
+    };
 };
 
 #endif  // CLASSES_CPP
