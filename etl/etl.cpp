@@ -8,7 +8,9 @@
 
 using namespace std;
 
-roads roads_obj;
+const int MAX_THREADS = 20;
+
+roads roads_obj;  // objeto que contém as estradas
 // processando os dados
 mutex lines_queue_mutex;
 vector<string> lines_queue;
@@ -38,6 +40,12 @@ void process_file_line() {
     roads_obj.update_car(car_plate, car_pos, process_road);
 }
 
+void thread_work() {
+    while (doc_line < lines_queue.size()) {
+        process_file_line();
+    }
+}
+
 int read_f(string file_name) {
     ifstream file(file_name);
 
@@ -58,7 +66,16 @@ int read_f(string file_name) {
 int main() {
     int lines_number = read_f("carros.txt");
 
-    for (int i = 0; i < lines_number; i++) {
-        process_file_line();
+    vector<thread> threads;
+    // cria as threads
+    for (int i = 0; i < MAX_THREADS; i++) {
+        thread t(thread_work);
+        threads.push_back(move(t));
     }
+
+    // espera as threads terminarem
+    for (int i = 0; i < MAX_THREADS; i++) {
+        threads[i].join();
+    }
+
 }

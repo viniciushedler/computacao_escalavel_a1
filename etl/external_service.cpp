@@ -1,0 +1,114 @@
+#ifndef EXTERNAL_SERVICE_CPP
+#define EXTERNAL_SERVICE_CPP
+
+#include <vector>
+#include <string>
+#include <iostream>
+#include <mutex>
+#include <random>
+#include <unordered_map>
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
+
+using namespace std;
+
+class external_service {
+    private:
+        float queue_check_time = 0.2;   // tempo em segundos para checar a fila
+        float chance_of_error = 0.1;    // chance de dar erro no serviço
+        float chance_of_delay = 0.1;    // chance de dar delay no serviço
+        float max_delay_time = 2.0;     // tempo máximo de delay em segundos
+
+        // resultado da query
+        string name;
+        string model;
+        string year;
+
+    public:
+        mutex service_mutex;
+        int serving_now = 0;
+        int last_ticket = 0;
+        unordered_map<string*, vector<string>> database;
+
+        bool query_vehicle(string *plate) {
+            int service_ticket;
+            {  // cria um escopo para mexer nas variáveis globais
+                lock_guard<mutex> guard(service_mutex);
+                service_ticket = this->last_ticket++;
+            }
+            while (this->serving_now != service_ticket) {
+                // espera o serviço ser liberado
+                sleep(queue_check_time);
+            }
+            // caso o serviço esteja liberado, faz o serviço
+
+            // calcula a chance de delay
+            random_device rd;
+            mt19937 gen(rd());
+            uniform_real_distribution<> dis(0.0, 1.0);
+            float chance = dis(gen);
+            if (chance < this->chance_of_delay) {
+                // calcula o tempo de delay
+                uniform_real_distribution<> dis(0.0, this->max_delay_time);
+                float delay_time = dis(gen);
+                sleep(delay_time);
+            }
+            
+            // calcula a chance de erro
+            chance = dis(gen);
+            if (chance < this->chance_of_error) {
+                return false;  // retorna erro
+            }
+
+            // faz a query
+            if (this->database.find(plate) != this->database.end()) {
+                // salva o resultado 
+                this->name = this->database[plate][0];
+                this->model = this->database[plate][1];
+                this->year = this->database[plate][2];
+            } else {
+                // cria novos dados para o veículo
+                vector<string> first_names = {"João", "Maria", "José", "Ana", "Pedro", "Paulo", "Carlos", "Mariana", "Rafael", "Gabriel"};
+                vector<string> last_names = {"Silva", "Santos", "Souza", "Oliveira", "Pereira", "Rodrigues", "Almeida", "Nascimento", "Lima", "Ferreira"};
+                vector<string> models = {"Gol", "Palio", "Uno", "Celta", "Corsa", "Civic", "Corolla", "Fiesta", "Focus", "Fusion", "Accord", "Golf"};
+                vector<string> years = {"2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009"};
+
+                // sorteia os dados
+                uniform_int_distribution<> dis(0, first_names.size() - 1);
+                string first_name = first_names[dis(gen)];
+                dis = uniform_int_distribution<>(0, last_names.size() - 1);
+                string last_name = last_names[dis(gen)];
+                dis = uniform_int_distribution<>(0, models.size() - 1);
+                string model = models[dis(gen)];
+                dis = uniform_int_distribution<>(0, years.size() - 1);
+                string year = years[dis(gen)];
+
+                // salva o resultado
+                this->name = first_name + " " + last_name;
+                this->model = model;
+                this->year = year;
+                database[plate] = {name, model, year};
+            }
+            return true;
+        }
+
+        string get_name() {
+            return this->name;
+        }
+
+        string get_model() {
+            return this->model;
+        }
+
+        string get_year() {
+            return this->year;
+        }
+};
+
+int main() {
+}
+
+#endif // EXTERNAL_SERVICE_CPP
