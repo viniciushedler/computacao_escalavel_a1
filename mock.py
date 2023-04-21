@@ -9,6 +9,7 @@
 '''
 
 import random
+import string
 import secrets
 import os
 from typing import Union
@@ -80,7 +81,8 @@ class Car():
         self.road = road
 
         # Car parameters
-        self.plate = secrets.token_urlsafe(4)
+        #self.plate = secrets.token_urlsafe(4)
+        self.plate = ''.join([random.choice(string.ascii_uppercase) for _ in range(3)]) + str(random.randint(0,9)) + random.choice(string.ascii_uppercase) + str(random.randint(0,9)) + str(random.randint(0,9))
         self.model = model_from_plate(self.plate)
         self.risk = RISK
         self.speed_min = MODELS[self.model]["SPEED_MIN"]
@@ -275,17 +277,15 @@ class Road():
     def __init__(self):
 
         # Road parameters
-        self.length = 40
+        self.length = LENGTH
         self.lanes_f = LANES_F
         self.lanes_b = LANES_B
         self.lanes_total = LANES_F + LANES_B
         self.road: list[Union[Car, Collision, None]]=[[None]*self.length for _ in range(self.lanes_total)]
-        print(f'Lanes: {len(self.road)}')
-        print(f'Length: {len(self.road[0])}')
         self.collision_countdown = COLLISION_COUNTDOWN
         self.car_spawn_prob = CAR_SPAWN_PROB
         self.speed_limit = SPEED_LIMIT
-        self.name = secrets.token_urlsafe(4)
+        self.name = "BR-" + str(random.randint(100, 999))
 
         # Road variables
         self.collisions: list[Collision] = []
@@ -333,7 +333,6 @@ class Road():
 
         if length_n >= self.length - 1:
             self.road[lane_o][length_o] = None
-            print(f'case 0: old {position_old} new {position_new}')
             return
 
         object_n = self.road[lane_n][length_n]
@@ -341,13 +340,11 @@ class Road():
 
         # Check if new position is empty
         if self.is_empty(lane_n, length_n):
-            print(f'case 2: old {position_old} new {position_new}')
             # Creates a copy of the car in the new position
             self.road[lane_n][length_n] = object_o
 
         # Check if the position contains another car
         elif isinstance(object_n, Car):
-            print(f'case 3: old {position_old} new {position_new}')
             # Support variable
             # Note: it is important that the new position car comes first in the list
             # Because, at this moment, the old position car still has it's old position saved in it
@@ -363,7 +360,6 @@ class Road():
 
         # Check if the position contains a collision already
         elif isinstance(object_n, Collision):
-            print(f'case 4: old {position_old} new {position_new}')
             self.road[lane_n][length_n].add(object_o)
             self.collision_total += 1
 
@@ -438,7 +434,7 @@ class Road():
         for lane in range(self.lanes_f):
             for pseudo_car in self.road[lane]:
                 if pseudo_car is None:
-                    string += " . "
+                    string += "   "
                 #elif type(pseudo_car) == Car:
                 elif isinstance(pseudo_car, Car):
                     string += " " + ANSI.colored_str(str(pseudo_car.speed), 'green') + " "
@@ -456,7 +452,7 @@ class Road():
             for car_i in range(self.length-1, -1, -1):
                 pseudo_car = self.road[lane][car_i]
                 if pseudo_car is None:
-                    string += " . "
+                    string += "   "
                 #elif type(pseudo_car) == Car:
                 elif isinstance(pseudo_car, Car):
                     string += "-" + ANSI.colored_str(str(pseudo_car.speed), 'green') + " "
@@ -478,6 +474,10 @@ class Road():
             for length in range(self.length):
                 if isinstance(self.road[lane][length], Car):
                     output.write(f"{self.road[lane][length].plate} 00{lane},{length:03}\n")
+                # suggested solution for writing collisions:
+                # elif isinstance(self.road[lane][length], Collision):
+                #     for c in self.road[lane][length].collided_cars:
+                #         output.write(f"{c.plate} 00{lane},{length:03}\n")
         output.close()
 
     def loop(self):
@@ -485,24 +485,21 @@ class Road():
             Calls cycle, prints data, waits for an input to continue
             Loops while true
         '''
+
         while True:
+
+            self.cycle()
+            os.system('cls')
+            print(self)
+            self.create_output()
+
             if self.counter > 0:
-                self.cycle()
                 self.counter -= 1
             else:
-                #os.system('cls')
-                self.cycle()
-                print(self)
-                print(f"Cycles: {self.cycle_total}")
-                print(f"Collisions: {self.collision_total}")
                 command = input()
                 while command != '':
-                    # la, le = pos.split(',')
-                    # print(self.road[int(la)][int(le)])
                     exec(command)
                     command = input()
-            # call the create_output function
-            self.create_output()
 
 
     def path_is_empty(self, lane, length_start, length_end) -> tuple[bool, int]:
