@@ -474,6 +474,10 @@ class Road():
             for length in range(self.length):
                 if isinstance(self.road[lane][length], Car):
                     output.write(f"{self.road[lane][length].plate} 00{lane},{length:03}\n")
+                # suggested solution for writing collisions:
+                # elif isinstance(self.road[lane][length], Collision):
+                #     for c in self.road[lane][length].collided_cars:
+                #         output.write(f"{c.plate} 00{lane},{length:03}\n")
         output.close()
 
     def loop(self):
