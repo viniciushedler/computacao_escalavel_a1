@@ -9,6 +9,7 @@
 '''
 
 import random
+import string
 import secrets
 import os
 from typing import Union
@@ -80,7 +81,8 @@ class Car():
         self.road = road
 
         # Car parameters
-        self.plate = secrets.token_urlsafe(4)
+        #self.plate = secrets.token_urlsafe(4)
+        self.plate = ''.join([random.choice(string.ascii_uppercase) for _ in range(3)]) + str(random.randint(0,9)) + random.choice(string.ascii_uppercase) + str(random.randint(0,9)) + str(random.randint(0,9))
         self.model = model_from_plate(self.plate)
         self.risk = RISK
         self.speed_min = MODELS[self.model]["SPEED_MIN"]
