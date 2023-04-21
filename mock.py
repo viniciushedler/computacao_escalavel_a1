@@ -285,7 +285,8 @@ class Road():
         self.collision_countdown = COLLISION_COUNTDOWN
         self.car_spawn_prob = CAR_SPAWN_PROB
         self.speed_limit = SPEED_LIMIT
-        self.name = secrets.token_urlsafe(4)
+        #self.name = secrets.token_urlsafe(4)
+        self.name = "BR-" + str(random.randint(100, 999))
 
         # Road variables
         self.collisions: list[Collision] = []
