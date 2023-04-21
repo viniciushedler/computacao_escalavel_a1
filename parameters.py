@@ -2,7 +2,8 @@ import random
 
 # Road parameters
 # set LANES to None to use a random integer in [1,10)
-LANES: int = 4
+LANES_F: int = 3
+LANES_B: int = 2
 SPEED_LIMIT: int = 10
 COLLISION_COUNTDOWN: int = 9
 CAR_SPAWN_PROB: float = 0.2

@@ -184,15 +184,28 @@ class Car():
 
         available_lanes = []
 
-        # If can turn left
-        if self.lane > 0 and (force or self.road.is_empty(self.lane-1, self.length)):
-            available_lanes.append(self.lane-1)
-        # If can turn right
-        if self.lane < (self.road.lanes - 1) and (force or self.road.is_empty(
-            self.lane + 1,
-            self.length)
-        ):
-            available_lanes.append(self.lane+1)
+        is_forward = 0 < self.lane < self.road.lanes_f - 1
+
+        if is_forward:
+            # If can diminish lane
+            if (self.lane > 0) and (force or self.road.is_empty(self.lane-1, self.length)):
+                available_lanes.append(self.lane-1)
+            # If can increase lane
+            if self.lane < (self.road.lanes_f - 1) and (force or self.road.is_empty(
+                self.lane + 1,
+                self.length)
+            ):
+                available_lanes.append(self.lane+1)
+        else:
+            # If can diminish lane
+            if (self.lane > self.road.lanes_f) and (force or self.road.is_empty(self.lane-1, self.length)):
+                available_lanes.append(self.lane-1)
+            # If can increase lane
+            if self.lane < (self.road.lanes_total - 1) and (force or self.road.is_empty(
+                self.lane + 1,
+                self.length)
+            ):
+                available_lanes.append(self.lane+1)
 
         # Returns if no lane is available
         if len(available_lanes) == 0:
@@ -261,8 +274,10 @@ class Road():
 
         # Road parameters
         self.length = 40
-        self.lanes = LANES
-        self.road: list[Union[Car, Collision, None]]=[[None]*self.length for _ in range(self.lanes)]
+        self.lanes_f = LANES_F
+        self.lanes_b = LANES_B
+        self.lanes_total = LANES_F + LANES_B
+        self.road: list[Union[Car, Collision, None]]=[[None]*self.length for _ in range(self.lanes_total)]
         print(f'Lanes: {len(self.road)}')
         print(f'Length: {len(self.road[0])}')
         self.collision_countdown = COLLISION_COUNTDOWN
@@ -284,7 +299,7 @@ class Road():
         '''
 
         # For every lane, choose whether to spawn a car
-        for lane in range(self.lanes):
+        for lane in range(self.lanes_total):
             if random.random() > 1 - self.car_spawn_prob and self.road[lane][0] is None:
                 self.road[lane][0] = Car(self, lane)
 
@@ -364,7 +379,7 @@ class Road():
             Note the order this is done: car farthest from the start first, ti-breaking by lanes (smallest first)
         '''
         for length in range(self.length, -1, -1):
-            for lane in range(self.lanes):
+            for lane in range(self.lanes_total):
                 # In this code, any 'pseudo_car' instance is a cell of the road which type we don't know
                 pseudo_car = self.road[lane][length]
                 if isinstance(pseudo_car, Car):
@@ -392,7 +407,7 @@ class Road():
         #self.remove_collisions()
 
         for length in range(self.length - 1, -1, -1):
-            for lane in range(self.lanes):
+            for lane in range(self.lanes_total):
                 pseudo_car = self.road[lane][length]
                 #if type(pseudo_car) == Car:
                 if isinstance(pseudo_car, Car):
@@ -415,13 +430,33 @@ class Road():
                 Collisions are colored red and represented by their countdown
         '''
         string = ""
-        for lane in self.road:
-            for pseudo_car in lane:
+
+        # lanes forwards
+        for lane in range(self.lanes_f):
+            for pseudo_car in self.road[lane]:
                 if pseudo_car is None:
                     string += " . "
                 #elif type(pseudo_car) == Car:
                 elif isinstance(pseudo_car, Car):
                     string += " " + ANSI.colored_str(str(pseudo_car.speed), 'green') + " "
+                #elif type(pseudo_car) == Collision:
+                elif isinstance(pseudo_car, Collision):
+                    string += " " + ANSI.colored_str(str(pseudo_car.countdown), 'red') + " "
+            string += "\n"
+        
+        for _ in range(self.length):
+            string += "---"
+        string += '\n'
+
+        # lanes backwards
+        for lane in range(self.lanes_f, self.lanes_total):
+            for car_i in range(self.length-1, -1, -1):
+                pseudo_car = self.road[lane][car_i]
+                if pseudo_car is None:
+                    string += " . "
+                #elif type(pseudo_car) == Car:
+                elif isinstance(pseudo_car, Car):
+                    string += "-" + ANSI.colored_str(str(pseudo_car.speed), 'green') + " "
                 #elif type(pseudo_car) == Collision:
                 elif isinstance(pseudo_car, Collision):
                     string += " " + ANSI.colored_str(str(pseudo_car.countdown), 'red') + " "
