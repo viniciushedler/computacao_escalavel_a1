@@ -15,6 +15,25 @@ from typing import Union
 from ansi import ANSI
 from parameters import *
 
+def model_from_plate(plate):
+    '''
+    Returns the name of a car model given a plate
+    '''
+    
+    # Turns the plate to an integer by summing the ascii value of each character
+    n = sum([ ord(s) for s in plate ])
+    
+    # Gets an ordered list of the car model names
+    keys = list(MODELS.keys())
+    keys.sort()
+
+    # Gets the desired index
+    i = n%len(MODELS)
+
+    # Returns the key at given index
+    return keys[i]
+
+
 class Collision():
     '''
         This class contains the cars that collided, and the countdown until they disappear.
@@ -61,12 +80,13 @@ class Car():
         self.road = road
 
         # Car parameters
-        model = random.choice(list(MODELS.keys()))
+        self.plate = secrets.token_urlsafe(4)
+        self.model = model_from_plate(self.plate)
         self.risk = RISK
-        self.speed_min = MODELS[model]["SPEED_MIN"]
-        self.speed_max = MODELS[model]["SPEED_MAX"]
-        self.acceleration_min = MODELS[model]["ACCELERATION_MIN"]
-        self.acceleration_max = MODELS[model]["ACCELERATION_MAX"]
+        self.speed_min = MODELS[self.model]["SPEED_MIN"]
+        self.speed_max = MODELS[self.model]["SPEED_MAX"]
+        self.acceleration_min = MODELS[self.model]["ACCELERATION_MIN"]
+        self.acceleration_max = MODELS[self.model]["ACCELERATION_MAX"]
         self.lange_change_prob = LANE_CHANGE_PROB
 
         # Car variables
