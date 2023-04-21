@@ -7,6 +7,7 @@
 
 using namespace std;
 
+roads roads_obj;
 // processando os dados
 mutex lines_queue_mutex;
 vector<string> lines_queue;
@@ -14,7 +15,9 @@ string road_name;
 int doc_line = 0;
 
 void process_file_line() {
+    // variáveis que ficarão na operação depois de abrir o mutex
     string process_line;
+    string process_road;
 
     { // cria um escopo para mexer nas variáveis globais
     lock_guard<mutex> guard(lines_queue_mutex);
@@ -25,8 +28,13 @@ void process_file_line() {
         road_name = process_line.substr(2, 8);
         return;
     }
+    process_road = road_name;
     }
-    cout << "Processing line: " << process_line << endl;
+
+    // faz o processamento aqui
+    string car_plate = process_line.substr(0, 8);
+    coords car_pos = coords(process_line.substr(9, 15));
+    roads_obj.update_car("A", coords(1, 1), process_road);
 }
 
 int read_f(string file_name){

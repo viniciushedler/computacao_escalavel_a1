@@ -20,6 +20,11 @@ struct coords {
         this->x = x;
         this->y = y;
     };
+
+    coords(string line) {
+        this->x = stoi(line.substr(0, 3));
+        this->y = stoi(line.substr(4, 6));
+    }
 };
 
 class car {
