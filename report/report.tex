@@ -7,6 +7,20 @@
 \usepackage[]{graphicx}
 \usepackage{amsmath}
 \usepackage{float}
+\usepackage{lipsum}
+\usepackage{xcolor}
+\usepackage{fancyvrb}
+\usepackage{verbatimbox}
+
+\catcode`>=\active %
+\catcode`<=\active %
+\def\openesc{\color{red}}
+\def\closeesc{\color{black}}
+\def\vbdelim{\catcode`<=\active\catcode`>=\active%
+\def<{\openesc}
+\def>{\closeesc}}
+\catcode`>=12 %
+\catcode`<=12 %
 
 \newcommand{\assignment}{Trabalho 1}
 \newcommand{\duedate}{23 de Abril}
@@ -34,5 +48,86 @@
 
     {\let\newpage\relax\maketitle}
     \maketitle
+
+    \section{Introdução}
+    Neste trabalho iremos implementar um pipeline de processamento de dados
+    para um sistema de monitoramento de rodovias, seguindo o modelo ETL 
+    (Extract, Transform, Load) e utilizando os mecanismos apresentados
+    em aula para executar de forma concorrente e paralela.
+
+    \section{Modelagem}
+    Aqui podemos falar da forma que distribuímos as tarefas(?).
+
+    \subsection*{Mock}
+    Primeiramente, uma vez que implementar um sistema de monitoramento de rodovias
+    não é o objetivo do trabalho, criamos um Mock que imita o comportamento que um sistema desse tipo teria.
+    O Mock simula uma rodovia e os carros que passam por ela, bem como as colisões que podem ocorrer.
+    Por conta disso, decidimos que o Mock teria cada uma dessas três classes.
+    
+    Cada carro possui uma série de atributos, tais como placa, modelo, velocidades máxima e mínima, 
+    acelerações máxima e mínima, uma probabilidade de colisões e uma probabilidade de trocar de faixa.
+    Dessa forma, é possível que o carro siga em frente, troque de faixa ou cause algum tipo de colisão.
+
+    Por sua vez, cada rodovia é composta por um comprimento, número de faixas em ambos os sentidos, 
+    uma lista que armazena uma lista de carros e outra lista de colisões, um limite de velocidade 
+    e uma contagem regressiva para as colisões.
+
+    Por fim, as colisões são representadas por uma lista de carros que colidiram e as respectivas
+    contagens desses carros que colidiram.
+
+    \subsection*{ETL}
+    \lipsum[1]
+
+    \subsection*{Dashboard}
+    \lipsum[2]
+
+    \section{Mock}
+    Como mencionado acima, o Mock é uma simulação de um sistema de monitoramento de rodovias.
+    Ele é composto pela rodovia, os carros e as colisões. É possível visualizar a simulação
+    ocorrendo a cada ciclo. Além disso, ele gera como saída um arquivo com o nome da rodovia
+    observada, os carros que passam por ela e suas respectivas posições - o número da via e 
+    distância percorrida.
+    
+    Segue um exemplo de simulação do Mock:
+
+    \begin{verbnobox}[\vbdelim]
+2                                                     <9>                                                                                                           2                                                                                                                                        
+ 2                                                        <9>                 
+                               2                                            
+------------------------------------------------------------------------------------
+                                                 -4                         
+                                                 <8>                        -3         
+             -2
+    \end{verbnobox}
+    
+    Acima, temos uma simulação de uma rodovia com 3 faixas em cada sentido. Os números representam
+    as acelerações. O sinal negativo representa que esses carros estão indo no sentido oposto ao
+    da faixa de cima. Já os números em vermelho são as contagens regressivas das colisões, que são
+    atualizadas a cada ciclo.
+
+    Além disso, a simulação também gera um arquivo de output que contém o nome da rodovia observada,
+    as placas dos carros que passam por ela e suas respectivas posições a cada ciclo. A posição do
+    veículo é representada por um par ordenado com o número da via e a distância percorrida.
+    Segue abaixo um exemplo de arquivo de output, referente à simuação acima:
+
+    \begin{verbatim}
+> BR-286
+DQF9D30 000,000
+TWB3V34 001,001
+EOI9E67 002,010
+DWQ5P39 003,017
+JYX8N25 004,007
+IFK9V68 005,034
+    \end{verbatim}
+
+    O output em questão será usado como entrada para o processo de ETL.
+
+    \section{ETL}
+
+    \section{Dashboard}
+
+    \section{Problemas e Soluções}
+
+    \section{Conclusão}
 
 \end{document}
