@@ -3,7 +3,7 @@
 
 #include <array>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -31,8 +31,9 @@ class car {
    public:
     string plate;
     coords position;
-    int speed;
-    int acceleration;
+    float speed;
+    float acceleration;
+    float time_slice = 0.1;
     // ... outros atributos
 
     car(){};
@@ -40,19 +41,25 @@ class car {
     car(string plate, coords position) {
         this->plate = plate;
         this->position = position;
-        this->speed = calculate_speed();
-        this->acceleration = calculate_acceleration();
+        this->speed = NULL;
+        this->acceleration = NULL;
+    };
+
+    void update_position(coords new_position) {
+        this->calculate_acceleration(new_position);
+        this->calculate_speed(new_position);
+        this->position = new_position;
     };
 
    private:
-    int calculate_speed() {
-        // ... calcula a velocidade
-        return 0;
+    void calculate_speed(coords new_position) {
+        // Calcula e atualiza a velocidade
+        this->speed = (this->position.x - new_position.x) / this->time_slice;
     };
 
-    int calculate_acceleration() {
-        // ... calcula a aceleração
-        return 0;
+    void calculate_acceleration(coords new_position) {
+        // Calcula e atualiza a aceleração
+        this->acceleration = (this->speed - (position.x - new_position.x)) / this->time_slice;
     };
 };
 
@@ -62,7 +69,7 @@ class road {
     int length;
     int width;
     int speed_limit;
-    map<string, car> cars;
+    unordered_map<string, car> cars;
     // ... outros atributos
 
     road(){};
@@ -90,7 +97,7 @@ class road {
 
 class roads {
    public:
-    map<string, road> roads_list;
+    unordered_map<string, road> roads_list;
 
     void update_car(string plate, coords position, string road_name) {
         // define a estrada
