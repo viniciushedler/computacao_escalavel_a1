@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "car_classes.cpp"
+#include "dashboard_class.cpp"
 
 using namespace std;
 
@@ -78,4 +79,7 @@ int main() {
         threads[i].join();
     }
 
+    // cria o objeto dashboard
+    dashboard dashboard_obj(&roads_obj);
+    dashboard_obj.print();
 }
