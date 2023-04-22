@@ -79,7 +79,7 @@ class Car():
             _lane: The lane the car is on.
     '''
 
-    def __init__(self, road: 'Road', lane: int):
+    def __init__(self, road: 'Road', lane: int, speed_min: int, speed_max:int, acceleration_min:int, acceleration_max:int, lane_change_prob, collsion_risk: float):
         # Road
         self.road = road
 
@@ -87,12 +87,12 @@ class Car():
         #self.plate = secrets.token_urlsafe(4)
         self.plate = ''.join([random.choice(string.ascii_uppercase) for _ in range(3)]) + str(random.randint(0,9)) + random.choice(string.ascii_uppercase) + str(random.randint(0,9)) + str(random.randint(0,9))
         self.model = model_from_plate(self.plate)
-        self.risk = RISK
-        self.speed_min = MODELS[self.model]["SPEED_MIN"]
-        self.speed_max = MODELS[self.model]["SPEED_MAX"]
-        self.acceleration_min = MODELS[self.model]["ACCELERATION_MIN"]
-        self.acceleration_max = MODELS[self.model]["ACCELERATION_MAX"]
-        self.lange_change_prob = LANE_CHANGE_PROB
+        self.risk = collsion_risk
+        self.speed_min = speed_min
+        self.speed_max = speed_max
+        self.acceleration_min = acceleration_min
+        self.acceleration_max = acceleration_max
+        self.lange_change_prob = lane_change_prob
 
         # Car variables
         self._lane, self._length = self._pos = (lane, 0)
@@ -291,6 +291,10 @@ class Road():
         self.name = name
         self.prob_of_changing_lane = prob_of_changing_lane
         self.prob_of_collision = prob_of_collision
+        self.car_speed_min = car_speed_min
+        self.car_speed_max = car_speed_max
+        self.car_acc_min = car_acc_min
+        self.car_acc_max = car_acc_max
 
         # Road variables
         self.collisions: list[Collision] = []
@@ -308,7 +312,7 @@ class Road():
         # For every lane, choose whether to spawn a car
         for lane in range(self.lanes_total):
             if random.random() > 1 - self.car_spawn_prob and self.road[lane][0] is None:
-                self.road[lane][0] = Car(self, lane)
+                self.road[lane][0] = Car(self, lane, self.car_speed_min, self.car_speed_max, self.car_acc_min, self.car_acc_min, self.prob_of_changing_lane, self.prob_of_collision)
 
     def is_empty(self, lane: int, length:int) -> bool:
         '''
@@ -579,4 +583,4 @@ def create_world(filename:str):
 
 if __name__ == "__main__":
     world = create_world('etl/world.txt')
-    world.loop(100)
+    world.loop(10000)
