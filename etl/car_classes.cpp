@@ -33,6 +33,7 @@ class car {
     coords position;
     float speed;
     float acceleration;
+    bool updated;
     const float TIME_SLICE = 0.1;
     // ... outros atributos
 
@@ -44,13 +45,18 @@ class car {
         this->position = position;
         this->speed = 0.0;
         this->acceleration = 0.0;
+        this->updated = true;
     };
+
+    // Destrutor
+    ~car(){};
 
     // Atualiza a posição do carro (e calcula a aceleração e velocidade)
     void update_position(coords new_position) {
         this->calculate_acceleration(new_position);
         this->calculate_speed(new_position);
         this->position = new_position;
+        this->updated = true;
     };
 
    private:
@@ -84,10 +90,18 @@ class road {
 
     road(){};
 
+    // Construtor
     road(int length, int width, int speed_limit) {
         this->length = length;
         this->width = width;
         this->speed_limit = speed_limit;
+    };
+
+    // Destrutor
+    ~road() {
+        for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
+            delete curr_car->second;
+        }
     };
 
     // Verifica se o carro com a placa especificada existe
@@ -159,6 +173,19 @@ class road {
         road_matrix[new_position.x][new_position.y][plate] =
             curr_car;  // adiciona o carro na matriz
     };
+
+    // Remove carros que não foram atualizados
+    void remove_unupdated_cars() {
+        for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
+            if (!curr_car->second->updated) {
+                road_matrix[curr_car->second->position.x]
+                           [curr_car->second->position.y]
+                           .erase(curr_car->first);
+                delete curr_car->second;
+                cars.erase(curr_car->first);
+            }
+        }
+    };
 };
 
 class roads {
@@ -166,12 +193,12 @@ class roads {
     unordered_map<string, road*> roads_list;
 
     void update_car(string plate, coords position, string road_name) {
-        // define a estrada
+        // define a rodovia
         if (roads_list.find(road_name) ==
-            roads_list.end()) {  // se a estrada não existe
+            roads_list.end()) {  // se a rodovia não existe
             roads_list.insert(pair<string, road*>(
                 road_name,
-                new road(10, 2, 60)  // <! Adicionar propriedades da estrada !>
+                new road(10, 2, 60)  // <! Adicionar propriedades da rodovia !>
                 ));
         }
         road* curr_road = roads_list.at(road_name);
@@ -226,6 +253,18 @@ class roads {
                 curr_road->second->get_collision_risk_cars_count();
         }
         return collision_risk_cars_count;
+    };
+
+    // Remove carros e rodovias que não foram atualizados
+    void remove_unupdated_cars_and_roads() {
+        for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
+             ++curr_road) {
+            curr_road->second->remove_unupdated_cars();
+            if (curr_road->second->get_cars_count() == 0) {
+                delete curr_road->second;
+                roads_list.erase(curr_road->first);
+            }
+        }
     };
 };
 

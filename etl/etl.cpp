@@ -10,7 +10,7 @@ using namespace std;
 
 const int MAX_THREADS = 20;
 
-roads roads_obj;  // objeto que contém as estradas
+roads roads_obj;  // objeto que contém as rodovias
 // processando os dados
 mutex lines_queue_mutex;
 vector<string> lines_queue;
@@ -26,7 +26,7 @@ void process_file_line() {
         lock_guard<mutex> guard(lines_queue_mutex);
         process_line = lines_queue[doc_line];
         doc_line++;
-        // se estivermos lendo uma linha de nova estrada
+        // se estivermos lendo uma linha de nova rodovia
         if (process_line.substr(0, 1) == ">") {
             road_name = process_line.substr(2, 8);
             return;
