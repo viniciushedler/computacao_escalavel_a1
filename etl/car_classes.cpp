@@ -288,13 +288,13 @@ class roads {
     };
 
     // Retorna todas as informações dos carros de todas as rodovias
-    vector<car*> get_all_cars_info() {
-        vector<car*> all_cars_info;
+    vector<car> get_all_cars_info() {
+        vector<car> all_cars_info;
         for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
              ++curr_road) {
             for (auto curr_car = curr_road->second->cars.begin();
                  curr_car != curr_road->second->cars.end(); ++curr_car) {
-                all_cars_info.push_back(curr_car->second);
+                all_cars_info.push_back(*curr_car->second);
             }
         }
     };
