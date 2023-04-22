@@ -4,3 +4,4 @@ etl/etl
 dashboard_test
 etl/dashboard_class
 etl/external_service
+output.txt

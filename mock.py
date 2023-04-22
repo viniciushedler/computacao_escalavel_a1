@@ -12,6 +12,7 @@ import random
 import string
 import secrets
 import os
+import time
 from typing import Union
 from ansi import ANSI
 from parameters import * #pylint:disable = wildcard-import, unused-wildcard-import
@@ -274,18 +275,18 @@ class Road():
             collision_countdown: The number of cycles a collision lasts.
             car_spawn_prob: The probability of a car spawning in a lane in a cycle.
     '''
-    def __init__(self):
+    def __init__(self, name, lanes_f, lanes_b, length, speed_limit, prob_of_new_car, prob_of_changing_lane, prob_of_collision, car_speed_min, car_speed_max, car_acc_min, car_acc_max, collision_fix_time):
 
         # Road parameters
-        self.length = LENGTH
-        self.lanes_f = LANES_F
-        self.lanes_b = LANES_B
-        self.lanes_total = LANES_F + LANES_B
+        self.length = length
+        self.lanes_f = lanes_f
+        self.lanes_b = lanes_b
+        self.lanes_total = lanes_f + lanes_b
         self.road: list[Union[Car, Collision, None]]=[[None]*self.length for _ in range(self.lanes_total)]
-        self.collision_countdown = COLLISION_COUNTDOWN
-        self.car_spawn_prob = CAR_SPAWN_PROB
-        self.speed_limit = SPEED_LIMIT
-        self.name = "BR-" + str(random.randint(100, 999))
+        self.collision_countdown = collision_fix_time
+        self.car_spawn_prob = prob_of_new_car
+        self.speed_limit = speed_limit
+        self.name = name
 
         # Road variables
         self.collisions: list[Collision] = []
@@ -521,7 +522,53 @@ class Road():
 
         return True, l
 
+class World():
+    roads = []
+
+    def add_road(self, road:Road):
+        self.roads.append(road)
+    
+    def loop(self):
+        while True:
+            for road in self.roads:
+                road.cycle()
+                road.create_output()
+            print("Cycle done")
+            time.sleep(0.1)
+
+def create_world(filename:str):
+    '''
+        Creates a world from a file
+    '''
+    world = World()
+
+    with open(filename, 'r', encoding='utf-8') as file:
+        for line in file:
+            # define road attributes
+            attr = line.split(' ')
+            print(attr)
+            name = attr[0]
+            lanes_f = int(attr[1])
+            lanes_b = int(attr[2])
+            length = 100
+            speed_limit = int(attr[3])
+            prob_of_new_car = float(attr[4])/100
+            prob_of_changing_lane = float(attr[5])/100
+            prob_of_collision = float(attr[6])/100
+            car_speed_min = int(attr[7])
+            car_speed_max = int(attr[8])
+            car_acc_min = int(attr[9])
+            car_acc_max = int(attr[10])
+            collision_fix_time = int(attr[11])
+
+            # create road
+            road = Road(name, lanes_f, lanes_b, length, speed_limit, prob_of_new_car, prob_of_changing_lane, prob_of_collision, car_speed_min, car_speed_max, car_acc_min, car_acc_max, collision_fix_time)
+
+            # add road to world
+            world.add_road(road)
+
+    return world
 
 if __name__ == "__main__":
-    r = Road()
-    r.loop()
+    world = create_world('etl/world.txt')
+    world.loop()
