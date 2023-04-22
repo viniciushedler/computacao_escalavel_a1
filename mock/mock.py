@@ -18,7 +18,6 @@ from ansi import ANSI
 from parameters import * #pylint:disable = wildcard-import, unused-wildcard-import
 
 main_folder = "roads"
-max_files = 10
 
 def model_from_plate(plate):
     '''
@@ -536,14 +535,13 @@ class World():
             while True:
                 for road in self.roads:
                     road.cycle()
-                    road.create_output(i%max_files)
-                print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
+                    road.create_output(i)
                 i+=1
         else:
             for i in range(cycles):
                 for road in self.roads:
                     road.cycle()
-                    road.create_output(i%max_files)
+                    road.create_output(i)
                 print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
             print(" ==== DONE ==== ")
 
