@@ -37,6 +37,7 @@ class car {
     bool updated;
     const float TIME_SLICE = 0.1;
     // Atributos do sistema externo
+    boll with_external_service_info = false;
     string propietary;
     string model;
     int year;
