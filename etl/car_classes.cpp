@@ -177,7 +177,10 @@ class road {
     // Remove carros que não foram atualizados
     void remove_unupdated_cars() {
         for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
-            if (!curr_car->second->updated) {
+            if (curr_car->second->updated) {
+                curr_car->second->updated = false;
+            }
+            else {
                 road_matrix[curr_car->second->position.x]
                            [curr_car->second->position.y]
                            .erase(curr_car->first);
