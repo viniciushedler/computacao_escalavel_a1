@@ -17,6 +17,9 @@ from typing import Union
 from ansi import ANSI
 from parameters import * #pylint:disable = wildcard-import, unused-wildcard-import
 
+main_folder = "roads"
+max_files = 10
+
 def model_from_plate(plate):
     '''
     Returns the name of a car model given a plate
@@ -463,22 +466,19 @@ class Road():
             string += "\n"
         return string
 
-    def create_output(self):
+    def create_output(self, index):
         '''
             This function creates a file called 'output.txt' and writes the data of the road to it
             This file will be extracted by the ETL process
         '''
-        output = open("output.txt", 'a', encoding='utf-8')
+        os.makedirs(os.path.dirname(f"{main_folder}/{index}.txt"), exist_ok=True)
+        output = open(f"{main_folder}/{index}.txt", 'a', encoding='utf-8')
         output.write(f"> {self.name}\n")
 
         for lane in range(self.lanes_total):
             for length in range(self.length):
                 if isinstance(self.road[lane][length], Car):
                     output.write(f"{self.road[lane][length].plate} 00{lane},{length:03}\n")
-                # suggested solution for writing collisions:
-                # elif isinstance(self.road[lane][length], Collision):
-                #     for c in self.road[lane][length].collided_cars:
-                #         output.write(f"{c.plate} 00{lane},{length:03}\n")
         output.close()
 
     def loop(self):
@@ -528,13 +528,22 @@ class World():
     def add_road(self, road:Road):
         self.roads.append(road)
     
-    def loop(self):
-        while True:
-            for road in self.roads:
-                road.cycle()
-                road.create_output()
-            print("Cycle done")
-            time.sleep(0.1)
+    def loop(self, cycles:int=None):
+        i= 0
+        if cycles is None:
+            while True:
+                for road in self.roads:
+                    road.cycle()
+                    road.create_output(i%max_files)
+                print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
+                i+=1
+        else:
+            for i in range(cycles):
+                for road in self.roads:
+                    road.cycle()
+                    road.create_output(i%max_files)
+                print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
+            print(" ==== DONE ==== ")
 
 def create_world(filename:str):
     '''
@@ -546,7 +555,6 @@ def create_world(filename:str):
         for line in file:
             # define road attributes
             attr = line.split(' ')
-            print(attr)
             name = attr[0]
             lanes_f = int(attr[1])
             lanes_b = int(attr[2])
@@ -571,4 +579,4 @@ def create_world(filename:str):
 
 if __name__ == "__main__":
     world = create_world('etl/world.txt')
-    world.loop()
+    world.loop(100)
