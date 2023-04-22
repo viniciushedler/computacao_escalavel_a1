@@ -29,13 +29,17 @@ struct coords {
 
 class car {
    public:
+    // Atributos
     string plate;
     coords position;
     float speed;
     float acceleration;
     bool updated;
     const float TIME_SLICE = 0.1;
-    // ... outros atributos
+    // Atributos do sistema externo
+    string propietary;
+    string model;
+    int year;
 
     car(){};
 
@@ -48,8 +52,8 @@ class car {
         this->updated = true;
     };
 
-    // Destrutor
-    ~car(){};
+    // // Destrutor
+    // ~car(){};
 
     // Atualiza a posição do carro (e calcula a aceleração e velocidade)
     void update_position(coords new_position) {
@@ -58,6 +62,17 @@ class car {
         this->position = new_position;
         this->updated = true;
     };
+
+    // Define o proprietário do carro
+    void set_propietary(string propietary) {
+        this->propietary = propietary;
+    };
+
+    // Define o modelo do carro
+    void set_model(string model) { this->model = model; };
+
+    // Define o ano do carro
+    void set_year(int year) { this->year = year; };
 
    private:
     // Calcula a nova velocidade
@@ -97,12 +112,12 @@ class road {
         this->speed_limit = speed_limit;
     };
 
-    // Destrutor
-    ~road() {
-        for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
-            delete curr_car->second;
-        }
-    };
+    // // Destrutor
+    // ~road() {
+    //     for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
+    //         delete curr_car->second;
+    //     }
+    // };
 
     // Verifica se o carro com a placa especificada existe
     bool has_car(string plate) {
@@ -177,10 +192,12 @@ class road {
     // Remove carros que não foram atualizados
     void remove_unupdated_cars() {
         for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
-            if (!curr_car->second->updated) {
+            if (curr_car->second->updated) {
+                curr_car->second->updated = false;
+            } else {
                 road_matrix[curr_car->second->position.x]
                            [curr_car->second->position.y]
-                           .erase(curr_car->first);
+                               .erase(curr_car->first);
                 delete curr_car->second;
                 cars.erase(curr_car->first);
             }
@@ -211,6 +228,8 @@ class roads {
 
         // atualiza a posição do carro
         curr_road->update_car(plate, position);
+
+
 
         /* <! Fazer cálculos de atualização do carro !>
         aqui a gente vai mudar a posição dele,
@@ -263,6 +282,18 @@ class roads {
             if (curr_road->second->get_cars_count() == 0) {
                 delete curr_road->second;
                 roads_list.erase(curr_road->first);
+            }
+        }
+    };
+
+    // Retorna todas as informações dos carros de todas as rodovias
+    vector<car*> get_all_cars_info() {
+        vector<car*> all_cars_info;
+        for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
+             ++curr_road) {
+            for (auto curr_car = curr_road->second->cars.begin();
+                 curr_car != curr_road->second->cars.end(); ++curr_car) {
+                all_cars_info.push_back(curr_car->second);
             }
         }
     };
