@@ -15,7 +15,7 @@ class dashboard{
     int number_cars;
     int number_cars_over_speed_limit;
     int number_cars_risk_collision;
-    vector<car*> all_cars_info;
+    vector<car> all_cars_info;
     // string plate;
     // coords position;
     // float speed;
@@ -55,34 +55,34 @@ class dashboard{
 
 
             for (int i = 0; i < all_cars_info.size(); i++){
-                if (all_cars_info[i]->speed > 60){
+                if (all_cars_info[i].speed > 60){
 
-                    if (all_cars_info[i]->propietary != ""){
+                    if (all_cars_info[i].propietary != ""){
                         std::cout << "\033[31m";
-                        cout << all_cars_info[i]->plate << " " << "(" << all_cars_info[i]->position.x << ", " 
-                        << all_cars_info[i]->position.y << ")" << " " << all_cars_info[i]->speed << " " 
-                        << all_cars_info[i]->acceleration << " " << all_cars_info[i]->propietary << " " 
-                        << all_cars_info[i]->model << " " << all_cars_info[i]->year << endl;
+                        cout << all_cars_info[i].plate << " " << "(" << all_cars_info[i].position.x << ", " 
+                        << all_cars_info[i].position.y << ")" << " " << all_cars_info[i].speed << " " 
+                        << all_cars_info[i].acceleration << " " << all_cars_info[i].propietary << " " 
+                        << all_cars_info[i].model << " " << all_cars_info[i].year << endl;
                         std::cout << "\033[0m";
                     }
                     else{
-                        cout << all_cars_info[i]->plate << " " << "(" << all_cars_info[i]->position.x << ", " 
-                        << all_cars_info[i]->position.y << ")" << " " << all_cars_info[i]->speed << " " 
-                        << all_cars_info[i]->acceleration << " " << endl;
+                        cout << all_cars_info[i].plate << " " << "(" << all_cars_info[i].position.x << ", " 
+                        << all_cars_info[i].position.y << ")" << " " << all_cars_info[i].speed << " " 
+                        << all_cars_info[i].acceleration << " " << endl;
                     }
                 }
                 
                 else{
-                    if (all_cars_info[i]->propietary != ""){
-                        cout << all_cars_info[i]->plate << " " << "(" << all_cars_info[i]->position.x << ", " 
-                        << all_cars_info[i]->position.y << ")" << " " << all_cars_info[i]->speed << " " 
-                        << all_cars_info[i]->acceleration << " " << all_cars_info[i]->propietary << " " 
-                        << all_cars_info[i]->model << " " << all_cars_info[i]->year << endl;
+                    if (all_cars_info[i].propietary != ""){
+                        cout << all_cars_info[i].plate << " " << "(" << all_cars_info[i].position.x << ", " 
+                        << all_cars_info[i].position.y << ")" << " " << all_cars_info[i].speed << " " 
+                        << all_cars_info[i].acceleration << " " << all_cars_info[i].propietary << " " 
+                        << all_cars_info[i].model << " " << all_cars_info[i].year << endl;
                     }
                     else{
-                        cout << all_cars_info[i]->plate << " " << "(" << all_cars_info[i]->position.x << ", " 
-                        << all_cars_info[i]->position.y << ")" << " " << all_cars_info[i]->speed << " " 
-                        << all_cars_info[i]->acceleration << " " << endl;
+                        cout << all_cars_info[i].plate << " " << "(" << all_cars_info[i].position.x << ", " 
+                        << all_cars_info[i].position.y << ")" << " " << all_cars_info[i].speed << " " 
+                        << all_cars_info[i].acceleration << " " << endl;
                     }
                 }
             };
