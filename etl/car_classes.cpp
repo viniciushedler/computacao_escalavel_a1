@@ -9,6 +9,13 @@
 
 using namespace std;
 
+const float TIME_SLICE = 0.1;
+#define SAFE 0
+#define WARNING 1
+#define COLIDED 2
+#define NOT_SPEEDING 0
+#define SPEEDING 1
+
 // define uma estrutura de coordenadas
 struct coords {
     int x;
@@ -35,7 +42,8 @@ class car {
     float speed;
     float acceleration;
     bool updated;
-    const float TIME_SLICE = 0.1;
+    int collision_status;
+    int is_over_speed_limit;
     // Atributos do sistema externo
     bool with_external_service_info = false;
     string propietary;
@@ -79,14 +87,14 @@ class car {
     // Calcula a nova velocidade
     void calculate_speed(coords new_position) {
         // Calcula e atualiza a velocidade
-        this->speed = (this->position.x - new_position.x) / this->TIME_SLICE;
+        this->speed = (this->position.x - new_position.x) / TIME_SLICE;
     };
 
     // Calcula a nova aceleração
     void calculate_acceleration(coords new_position) {
         // Calcula e atualiza a aceleração
         this->acceleration =
-            (this->speed - (position.x - new_position.x)) / this->TIME_SLICE;
+            (this->speed - (position.x - new_position.x)) / TIME_SLICE;
     };
 };
 
@@ -99,7 +107,6 @@ class road {
     unordered_map<string, car*> cars;
     unordered_map<int, unordered_map<int, unordered_map<string, car*>>>
         road_matrix;
-    const float TIME_SLICE = 0.1;
     const int SECURE_TIME_DISTANCE =
         2;  // Distância segura: 2 segundos de "distância"
     // ... outros atributos
@@ -188,6 +195,13 @@ class road {
             new_position);  // atualiza a posição do carro (no objeto do carro)
         road_matrix[new_position.x][new_position.y][plate] =
             curr_car;  // adiciona o carro na matriz
+        curr_car->updated = true;
+        curr_car->collision_status = get_car_status(plate);
+        if (curr_car->speed > this->speed_limit) {
+            curr_car->is_over_speed_limit = SPEEDING;
+        } else {
+            curr_car->is_over_speed_limit = NOT_SPEEDING;
+        }
     };
 
     // Remove carros que não foram atualizados
@@ -202,6 +216,18 @@ class road {
                 delete curr_car->second;
                 cars.erase(curr_car->first);
             }
+        }
+    };
+
+    // Verifica o status de um carro
+    int get_car_status(string plate) {
+        car* curr_car = cars.at(plate);
+        if (road_matrix[curr_car->position.x][curr_car->position.y].size() > 1) {
+            return COLIDED;
+        } else if (is_car_in_collision_risk(plate)) {
+            return WARNING;
+        } else {
+            return SAFE;
         }
     };
 };
