@@ -7,9 +7,12 @@
 #include <unordered_map>
 #include <vector>
 
+#include "external_service.cpp"
+
 using namespace std;
 
 const float TIME_SLICE = 0.1;
+const int EXTERNAL_SERVICE_MAX_QUEUE_SIZE = 1;
 #define SAFE 0
 #define WARNING 1
 #define COLIDED 2
@@ -48,7 +51,7 @@ class car {
     bool with_external_service_info = false;
     string propietary;
     string model;
-    int year;
+    string year;
 
     car(){};
 
@@ -81,7 +84,7 @@ class car {
     void set_model(string model) { this->model = model; };
 
     // Define o ano do carro
-    void set_year(int year) { this->year = year; };
+    void set_year(string year) { this->year = year; };
 
    private:
     // Calcula a nova velocidade
@@ -230,11 +233,43 @@ class road {
             return SAFE;
         }
     };
+
+    // Função para passar para a thread acessar o serviço externo
+    void thread_acess_external_service(string plate, mutex* external_service_mutex, external_service* external_service_obj) {
+        // Bloqueia o acesso ao serviço externo (região crítica) - Retira outros preocessos que tentam acessar o serviço externo do escalonador
+        external_service_mutex->lock();
+
+        // Verifica se as informações do carro estão atualizadas
+        if (cars.at(plate)->with_external_service_info) {
+            external_service_mutex->unlock();
+            return;
+        }
+
+        // Tentativa de acesso ao serviço externo
+        while(!external_service_obj->query_vehicle(plate));
+        // Atualiza as informações do carro
+        cars.at(plate)->with_external_service_info = true;
+        cars.at(plate)->set_propietary(external_service_obj->get_name());
+        cars.at(plate)->set_model(external_service_obj->get_model());
+        cars.at(plate)->set_year(external_service_obj->get_year());
+
+        // Desbloqueia o acesso ao serviço externo
+        external_service_mutex->unlock();
+    };
+        
+
+    // Acessa o serviço externo em uma thread separada (detached e com timeout)
+    void access_external_service(string plate, external_service* external_service_obj, mutex* external_service_mutex) {
+        thread external_service_thread(&road::thread_acess_external_service, this, plate, external_service_mutex, external_service_obj);
+        external_service_thread.detach();
+    };
 };
 
 class roads {
    public:
     unordered_map<string, road*> roads_list;
+    external_service* external_service_obj = new external_service(EXTERNAL_SERVICE_MAX_QUEUE_SIZE);
+    mutex external_service_mutex; // Mutex para acessar o serviço externo
 
     void update_car(string plate, coords position, string road_name) {
         // define a rodovia
@@ -323,6 +358,12 @@ class roads {
                 all_cars_info.push_back(*curr_car->second);
             }
         }
+    };
+
+    // Acessa o serviço externo
+    void access_external_service(string plate, string road_name) {
+        roads_list.at(road_name)->access_external_service(
+            plate, external_service_obj, &external_service_mutex);
     };
 };
 
