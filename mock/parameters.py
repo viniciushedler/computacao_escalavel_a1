@@ -1,4 +1,7 @@
-import random
+'''
+    This file sets the parameters used in the simulation.
+'''
+#import random
 
 # Road parameters
 # set LANES to None to use a random integer in [1,10)

@@ -10,7 +10,6 @@
 
 import random
 import string
-import secrets
 import os
 from typing import Union
 from ansi import ANSI
@@ -22,14 +21,14 @@ def model_from_plate(plate):
     '''
 
     # Turns the plate to an integer by summing the ascii value of each character
-    n = sum([ ord(s) for s in plate ])
+    num = sum([ ord(s) for s in plate ])
 
     # Gets an ordered list of the car model names
     keys = list(MODELS.keys())
     keys.sort()
 
     # Gets the desired index
-    i = n%len(MODELS)
+    i = num%len(MODELS)
 
     # Returns the key at given index
     return keys[i]
@@ -82,6 +81,7 @@ class Car():
 
         # Car parameters
         #self.plate = secrets.token_urlsafe(4)
+        # pylint: disable=line-too-long
         self.plate = ''.join([random.choice(string.ascii_uppercase) for _ in range(3)]) + str(random.randint(0,9)) + random.choice(string.ascii_uppercase) + str(random.randint(0,9)) + str(random.randint(0,9))
         self.model = model_from_plate(self.plate)
         self.risk = RISK
@@ -202,6 +202,7 @@ class Car():
                 available_lanes.append(self.lane+1)
         else:
             # If can diminish lane
+            # pylint: disable=line-too-long
             if (self.lane > self.road.lanes_f) and (force or self.road.is_empty(self.lane-1, self.length)):
                 available_lanes.append(self.lane-1)
             # If can increase lane
@@ -281,6 +282,7 @@ class Road():
         self.lanes_f = LANES_F
         self.lanes_b = LANES_B
         self.lanes_total = LANES_F + LANES_B
+        # pylint: disable=line-too-long
         self.road: list[Union[Car, Collision, None]]=[[None]*self.length for _ in range(self.lanes_total)]
         self.collision_countdown = COLLISION_COUNTDOWN
         self.car_spawn_prob = CAR_SPAWN_PROB
@@ -375,11 +377,13 @@ class Road():
     def all_decide_movement(self):
         '''
             Calls the 'decide_movement' method of every car in the road.
-            Note the order this is done: car farthest from the start first, ti-breaking by lanes (smallest first)
+            Note the order this is done: car farthest from the start first,
+            ti-breaking by lanes (smallest first)
         '''
         for length in range(self.length, -1, -1):
             for lane in range(self.lanes_total):
-                # In this code, any 'pseudo_car' instance is a cell of the road which type we don't know
+                # In this code, any 'pseudo_car' instance is a cell of the
+                # road which type we don't know
                 pseudo_car = self.road[lane][length]
                 if isinstance(pseudo_car, Car):
                     pseudo_car.decide_movement()
@@ -428,6 +432,7 @@ class Road():
                 Cars are colored green and represented by their current speed
                 Collisions are colored red and represented by their countdown
         '''
+        # pylint: disable=redefined-outer-name
         string = ""
 
         # lanes forwards
@@ -475,9 +480,9 @@ class Road():
                 if isinstance(self.road[lane][length], Car):
                     output.write(f"{self.road[lane][length].plate} 00{lane},{length:03}\n")
                 # suggested solution for writing collisions:
-                # elif isinstance(self.road[lane][length], Collision):
-                #     for c in self.road[lane][length].collided_cars:
-                #         output.write(f"{c.plate} 00{lane},{length:03}\n")
+                elif isinstance(self.road[lane][length], Collision):
+                    for collision in self.road[lane][length].collided_cars:
+                        output.write(f"{collision.plate} 00{lane},{length:03}\n")
         output.close()
 
     def loop(self):
@@ -498,6 +503,7 @@ class Road():
             else:
                 command = input()
                 while command != '':
+                    # pylint: disable=exec-used
                     exec(command)
                     command = input()
 

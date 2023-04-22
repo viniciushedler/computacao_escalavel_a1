@@ -11,8 +11,6 @@
 \usepackage{xcolor}
 \usepackage{fancyvrb}
 \usepackage{verbatimbox}
-\usepackage{tikz}
-\usepackage{float}
 
 \catcode`>=\active %
 \catcode`<=\active %
@@ -36,8 +34,8 @@
     Breno Marques Azevedo \\
     Bruno Pereira Fornaro \\
     Luis Fernando Laguardia \\
-    Vanessa Berwanger Wille \\
-    Vinicius Hedler
+    Vinicius Hedler \\
+    Vanessa Wille 
 }
 \date{\today}
 
@@ -57,29 +55,14 @@
     (Extract, Transform, Load) e utilizando os mecanismos apresentados
     em aula para executar de forma concorrente e paralela.
 
-    \section{Modelagem e Distribuição de Tarefas}
-    Como o trabalho é dividido em segmentos bem definidos, atribuímos tarefas
-    à cada integrante do grupo.
-
-    \begin{figure}[H]
-        \centering
-        \includegraphics*[width=12cm]{figs/modelagem.jpg}
-        \caption{Distribuição de tarefas.}
-        \label{fig:modelagem}
-    \end{figure}
-
-    Inicialmente, definimos bem como seria o funcionamento do Mock, a fim de projetar
-    como o que esperar durante o processamento dos dados. Isso nos ajudou a 
-    compartimentalizar o trabalho de forma relativamente independente. Contudo, ainda
-    mantivemos uma comunicação constante entre os membros do grupo. Realizamos reuniões
-    periódicas para discutir como implementar cada parte do trabalho, falar sobre o 
-    andamento do projeto e debater problemas que surgiam durante o desenvolvimento.
+    \section{Modelagem}
+    Aqui podemos falar da forma que distribuímos as tarefas(?).
 
     \subsection*{Mock}
     Primeiramente, uma vez que implementar um sistema de monitoramento de rodovias
     não é o objetivo do trabalho, criamos um Mock que imita o comportamento que um sistema desse tipo teria.
-    O Mock simula uma \textbf{rodovia} e os \textbf{carros} que passam por ela, bem como as \textbf{colisões} 
-    que podem ocorrer. Por conta disso, decidimos que o Mock teria cada uma dessas três classes.
+    O Mock simula uma rodovia e os carros que passam por ela, bem como as colisões que podem ocorrer.
+    Por conta disso, decidimos que o Mock teria cada uma dessas três classes.
     
     Cada carro possui uma série de atributos, tais como placa, modelo, velocidades máxima e mínima, 
     acelerações máxima e mínima, uma probabilidade de colisões e uma probabilidade de trocar de faixa.
@@ -91,17 +74,6 @@
     Por fim, as colisões são representadas por uma lista de carros que colidiram e as respectivas
     contagens desses carros que colidiram.
 
-    Como sugerido na especificação do trabalho, a simulação é atualizada por ciclos. A cada ciclo,
-    os carros se movem conforme possível, dados os fatores como velocidade, aceleração, colisões,
-    probabilidade de trocar de faixa, etc. Além disso, quando há uma colisão, o Mock realiza uma
-    contagem regressiva para removê-la, que é atualizada a cada ciclo.
-
-    Por fins de simplicidade, decidimos que a rodovia funcionaria como uma grande matriz, onde cada
-    célula representa um segmento da rodovia, podendo ou não conter um carro ou colisão. Dessa forma,
-    definir a posição do carro se torna uma tarefa mais simples, pois definir uma simulação mais complexa
-    e precisa de como os carros se movem e colidem está fora do escopo do trabalho. O que realmente nos
-    importa é o processamento dos dados gerados pelo Mock.
-
     \subsection*{ETL}
     \lipsum[1]
 
@@ -110,12 +82,12 @@
 
     \section{Mock}
     Como mencionado acima, o Mock é uma simulação de um sistema de monitoramento de rodovias.
-    Esse sistema é como um sensor em uma rodovia, relativamente parecido com um radar, mas ele
-    grava apenas a rodovia em que se encontra, a placa dos carros que passam por ela e a posição
-    desses carros.
-
-    Durante a execução do Mock, é possível ver a simulação da rodovia, o movimento dos carros a cada
-    ciclo e as colisões que ocorrem. Segue abaixo um exemplo:
+    Ele é composto pela rodovia, os carros e as colisões. É possível visualizar a simulação
+    ocorrendo a cada ciclo. Além disso, ele gera como saída um arquivo com o nome da rodovia
+    observada, os carros que passam por ela e suas respectivas posições - o número da via e 
+    distância percorrida.
+    
+    Segue um exemplo de simulação do Mock:
 
     \begin{verbnobox}[\vbdelim]
 2                                                     <9>                                                                                                           2                                                                                                                                        
@@ -129,13 +101,13 @@
     
     Acima, temos uma simulação de uma rodovia com 3 faixas em cada sentido. Os números representam
     as acelerações. O sinal negativo representa que esses carros estão indo no sentido oposto ao
-    da faixa de cima. Por sua vez, os números em vermelho são as contagens regressivas das colisões,
-    que são atualizadas a cada ciclo.
+    da faixa de cima. Já os números em vermelho são as contagens regressivas das colisões, que são
+    atualizadas a cada ciclo.
 
-    Além disso, a simulação também gera um arquivo de saída (\textit{output.txt}) que contém o nome
-    da rodovia observada,as placas dos carros que passam por ela e suas respectivas posições a cada
-    ciclo. A posição do veículo é representada por um par ordenado com o número da via e a distância
-    percorrida. Segue abaixo um exemplo de arquivo de output, referente à simulação acima:
+    Além disso, a simulação também gera um arquivo de output que contém o nome da rodovia observada,
+    as placas dos carros que passam por ela e suas respectivas posições a cada ciclo. A posição do
+    veículo é representada por um par ordenado com o número da via e a distância percorrida.
+    Segue abaixo um exemplo de arquivo de output, referente à simuação acima:
 
     \begin{verbatim}
 > BR-286
@@ -147,21 +119,13 @@ JYX8N25 004,007
 IFK9V68 005,034
     \end{verbatim}
 
-    Por fim, o arquivo de saída será usado durante o processamento dos dados. É esperado que várias
-    simulações sejam realizadas, gerando um volume dados considerável. Que permitirá análises interessantes
-    depois de processado.
+    O output em questão será usado como entrada para o processo de ETL.
 
     \section{ETL}
 
     \section{Dashboard}
 
     \section{Problemas e Soluções}
-    Um problema que enfrentamos logo nos momentos iniciais do projeto, foi a modelagem do Mock. Principalmente
-    no que diz respeito à representação da rodovia e das colisões. A nossa solução, como mencionado durante a 
-    a seção de modelagem, foi definir a rodovia como uma grande matriz e representar as células como possíveis
-    carros e colisões. Isso foi importante, pois uma das formas que imaginamos era definir um comprimento para o 
-    carro definir um tipo de \textit{hitbox} para ele. Entretanto, isso estaria muito longe do escopo do projeto
-    e essa simplicidade nos permitiu agilizar o desenvolvimento do simulador.
 
     \section{Conclusão}
 
