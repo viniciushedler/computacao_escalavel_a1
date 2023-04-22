@@ -16,8 +16,6 @@ const int EXTERNAL_SERVICE_MAX_QUEUE_SIZE = 1;
 #define SAFE 0
 #define WARNING 1
 #define COLIDED 2
-#define NOT_SPEEDING 0
-#define SPEEDING 1
 
 // define uma estrutura de coordenadas
 struct coords {
@@ -34,7 +32,12 @@ struct coords {
     coords(string line) {
         this->x = stoi(line.substr(0, 3));
         this->y = stoi(line.substr(4, 6));
-    }
+    };
+
+    ostream& operator<<(ostream& os) {
+        os << "(" << this->x << ", " << this->y << ")";
+        return os;
+    };
 };
 
 class car {
@@ -46,7 +49,7 @@ class car {
     float acceleration;
     bool updated;
     int collision_status;
-    int is_over_speed_limit;
+    bool is_over_speed_limit;
     // Atributos do sistema externo
     bool with_external_service_info = false;
     string propietary;
@@ -63,9 +66,6 @@ class car {
         this->acceleration = 0.0;
         this->updated = true;
     };
-
-    // // Destrutor
-    // ~car(){};
 
     // Atualiza a posição do carro (e calcula a aceleração e velocidade)
     void update_position(coords new_position) {
@@ -110,9 +110,7 @@ class road {
     unordered_map<string, car*> cars;
     unordered_map<int, unordered_map<int, unordered_map<string, car*>>>
         road_matrix;
-    const int SECURE_TIME_DISTANCE =
-        2;  // Distância segura: 2 segundos de "distância"
-    // ... outros atributos
+    const int SECURE_TIME_DISTANCE = 2;  // Distância segura: 2 segundos de "distância"
 
     road(){};
 
@@ -122,13 +120,6 @@ class road {
         this->width = width;
         this->speed_limit = speed_limit;
     };
-
-    // // Destrutor
-    // ~road() {
-    //     for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
-    //         delete curr_car->second;
-    //     }
-    // };
 
     // Verifica se o carro com a placa especificada existe
     bool has_car(string plate) {
@@ -201,9 +192,9 @@ class road {
         curr_car->updated = true;
         curr_car->collision_status = get_car_status(plate);
         if (curr_car->speed > this->speed_limit) {
-            curr_car->is_over_speed_limit = SPEEDING;
+            curr_car->is_over_speed_limit = true;
         } else {
-            curr_car->is_over_speed_limit = NOT_SPEEDING;
+            curr_car->is_over_speed_limit = false;
         }
     };
 
@@ -235,31 +226,23 @@ class road {
     };
 
     // Função para passar para a thread acessar o serviço externo
-    void thread_acess_external_service(string plate, mutex* external_service_mutex, external_service* external_service_obj) {
-        // Bloqueia o acesso ao serviço externo (região crítica) - Retira outros preocessos que tentam acessar o serviço externo do escalonador
-        external_service_mutex->lock();
+    void thread_acess_external_service(string plate, timed_mutex* external_service_mutex, external_service* external_service_obj) {
+        if (external_service_mutex->try_lock_for(chrono::seconds(5))) {
+            // Acessa o serviço externo
+            cars.at(plate)->with_external_service_info = true;
+            cars.at(plate)->set_propietary(external_service_obj->get_name());
+            cars.at(plate)->set_model(external_service_obj->get_model());
+            cars.at(plate)->set_year(external_service_obj->get_year());
 
-        // Verifica se as informações do carro estão atualizadas
-        if (cars.at(plate)->with_external_service_info) {
+            // Desbloqueia o acesso ao serviço externo
             external_service_mutex->unlock();
-            return;
-        }
-
-        // Tentativa de acesso ao serviço externo
-        while(!external_service_obj->query_vehicle(plate));
-        // Atualiza as informações do carro
-        cars.at(plate)->with_external_service_info = true;
-        cars.at(plate)->set_propietary(external_service_obj->get_name());
-        cars.at(plate)->set_model(external_service_obj->get_model());
-        cars.at(plate)->set_year(external_service_obj->get_year());
-
-        // Desbloqueia o acesso ao serviço externo
-        external_service_mutex->unlock();
+        } else {
+            return;  // Não conseguiu acessar o serviço externo
+        }        
     };
         
-
     // Acessa o serviço externo em uma thread separada (detached e com timeout)
-    void access_external_service(string plate, external_service* external_service_obj, mutex* external_service_mutex) {
+    void access_external_service(string plate, external_service* external_service_obj, timed_mutex* external_service_mutex) {
         thread external_service_thread(&road::thread_acess_external_service, this, plate, external_service_mutex, external_service_obj);
         external_service_thread.detach();
     };
@@ -269,7 +252,7 @@ class roads {
    public:
     unordered_map<string, road*> roads_list;
     external_service* external_service_obj = new external_service(EXTERNAL_SERVICE_MAX_QUEUE_SIZE);
-    mutex external_service_mutex; // Mutex para acessar o serviço externo
+    timed_mutex external_service_mutex; // Mutex para acessar o serviço externo
 
     void update_car(string plate, coords position, string road_name) {
         // define a rodovia
@@ -290,14 +273,6 @@ class roads {
 
         // atualiza a posição do carro
         curr_road->update_car(plate, position);
-
-
-
-        /* <! Fazer cálculos de atualização do carro !>
-        aqui a gente vai mudar a posição dele,
-        tentar calcular velocidade e aceleração,
-        computar risco de colisão, essas coisas.
-        */
     }
 
     // Retorna a quatidade de rodovias
@@ -358,6 +333,7 @@ class roads {
                 all_cars_info.push_back(*curr_car->second);
             }
         }
+        return all_cars_info;
     };
 
     // Acessa o serviço externo
