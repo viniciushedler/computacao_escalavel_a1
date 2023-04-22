@@ -1,12 +1,20 @@
+#ifndef DASHBOARD_TEST_CPP
+#define DASHBOARD_TEST_CPP
+
 #include <iostream>
-#include <stdlib.h>
 #include <string>
 #include <vector>
+#include <chrono>
+#include <thread>
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <unistd.h>
+#endif
 
 using namespace std;
 
-#include <chrono>
-#include <thread>
+
 
 int main() {
     for (int i = 0; i <300; i++) {
@@ -26,7 +34,10 @@ int main() {
         // std::cout << "Count: " << 10 - i << "\r";
         // std::cout.flush();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        sleep(0.1);
         // system("cls");
     }
     return 0;
 };
+
+#endif // DASHBOARD_TEST_CPP
