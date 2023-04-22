@@ -9,7 +9,7 @@
 
 using namespace std;
 
-const int MAX_THREADS = 20;
+const int MAX_THREADS = 1;
 
 roads roads_obj;  // objeto que contém as rodovias
 // processando os dados
@@ -25,6 +25,10 @@ void process_file_line() {
 
     {  // cria um escopo para mexer nas variáveis globais
         lock_guard<mutex> guard(lines_queue_mutex);
+        // se acabou o arquivo
+        if (doc_line >= lines_queue.size()) {
+            return;
+        }
         process_line = lines_queue[doc_line];
         doc_line++;
         // se estivermos lendo uma linha de nova rodovia
@@ -67,7 +71,28 @@ int read_f(string file_name) {
     return lines_number;
 }
 
+void create_roads(string file_specifics) {
+    ifstream file(file_specifics);
+
+    if (!file.is_open()) {  // Verifica se o arquivo existe
+        cout << "File not found." << endl;
+        exit(1);
+    }
+
+    string line;
+    while (getline(file, line)) {
+        string road_name = line.substr(0, 6);
+        int road_length = 100;
+        int max_speed = stoi(line.substr(11, 13));
+        int road_width = line[7]-'0'+line[9]-'0';
+        roads_obj.add_road(road_name, road_length, road_width, max_speed);
+    }
+}
+
 int main() {
+    // instanciando as rodovias
+    create_roads("world.txt");
+
     int lines_number = read_f("carros.txt");
 
     vector<thread> threads;

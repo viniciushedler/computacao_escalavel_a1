@@ -103,7 +103,6 @@ class car {
 
 class road {
    public:
-    string name;
     int length;
     int width;
     int speed_limit;
@@ -252,17 +251,12 @@ class roads {
    public:
     unordered_map<string, road*> roads_list;
     external_service* external_service_obj = new external_service(EXTERNAL_SERVICE_MAX_QUEUE_SIZE);
-    timed_mutex external_service_mutex; // Mutex para acessar o serviço externo
+    timed_mutex external_service_mutex;  // Mutex para acessar o serviço externo
+
+    roads() {};
 
     void update_car(string plate, coords position, string road_name) {
         // define a rodovia
-        if (roads_list.find(road_name) ==
-            roads_list.end()) {  // se a rodovia não existe
-            roads_list.insert(pair<string, road*>(
-                road_name,
-                new road(10, 2, 60)  // <! Adicionar propriedades da rodovia !>
-                ));
-        }
         road* curr_road = roads_list.at(road_name);
 
         // define o carro
@@ -341,7 +335,13 @@ class roads {
         roads_list.at(road_name)->access_external_service(
             plate, external_service_obj, &external_service_mutex);
     };
-};
 
+    // Cria uma rodovia segundo as especificações
+    void add_road(string road_name, int road_length, int road_width,
+                     int max_speed) {
+        roads_list.insert(pair<string, road*>(
+            road_name, new road(road_length, road_width, max_speed)));
+    };
+};
 
 #endif  // CLASSES_CPP
