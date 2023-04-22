@@ -1,2 +1,4 @@
 /__pycache__/
 etl/etl
+.vscode/*
+dashboard_test
