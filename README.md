@@ -5,7 +5,7 @@
 ### Arquivos e Pastas
 
 ```
-COMPTACAO_ESCALAVEL_A1
+COMPUTACAO_ESCALAVEL_A1
 |
 └─── etl
 |   |   car_classes.cpp                     → (?)
