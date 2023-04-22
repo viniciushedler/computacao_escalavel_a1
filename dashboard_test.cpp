@@ -22,6 +22,7 @@ int main() {
         std::cout << "Número de rodovias presentes na simulação: " << 10 - i << std::endl;
         std::cout << "Número total de veículos presentes na simulação: " << 10 - i << std::endl;
         std::cout << "Veículos acima do limite de velocidade: " << 10 - i << std::endl;
+        
         // std::cout << "Count: " << 10 - i << "\r";
         // std::cout.flush();
         std::this_thread::sleep_for(std::chrono::milliseconds(6));
