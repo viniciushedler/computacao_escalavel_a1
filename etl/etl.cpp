@@ -94,7 +94,6 @@ int main() {
     int cycle = 0;
     while (true) {
         string file_name = "../roads/" + to_string(cycle) + ".txt";
-        cout << "Reading file " << file_name << endl;
         int lines_number = read_f(file_name);
 
         vector<thread> threads;
