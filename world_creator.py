@@ -33,12 +33,12 @@ if __name__ == "__main__":
             prob_of_collision = random.uniform(prob_of_collision_range[0], prob_of_collision_range[1])
             f.write(f" {str(int(prob_of_collision*100)).zfill(2)}")
 
-            car_speed_min = car_speed_range[0]
-            car_speed_max = car_speed_range[1]
+            car_speed_min = random.choice(range(car_speed_range[0]))
+            car_speed_max = random.choice(range(car_speed_min+1, car_speed_range[1]))
             f.write(f" {str(car_speed_min*5).zfill(3)} {str(car_speed_max*5).zfill(3)}")
 
-            car_acc_min = car_acc_range[0]
-            car_acc_max = car_acc_range[1]
+            car_acc_min = random.choice(range(car_acc_range[0], 0))
+            car_acc_max = random.choice(range(1, car_acc_range[1]))
             f.write(f" {str(car_acc_min).zfill(3)} {str(car_acc_max).zfill(3)}")
 
             collision_fix_time = random.randint(collision_fix_time_range[0], collision_fix_time_range[1])

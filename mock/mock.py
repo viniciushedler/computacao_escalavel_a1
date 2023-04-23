@@ -10,10 +10,14 @@
 
 import random
 import string
+import secrets
 import os
+import time
 from typing import Union
 from ansi import ANSI
 from parameters import * #pylint:disable = wildcard-import, unused-wildcard-import
+
+main_folder = "roads"
 
 def model_from_plate(plate):
     '''
@@ -21,14 +25,14 @@ def model_from_plate(plate):
     '''
 
     # Turns the plate to an integer by summing the ascii value of each character
-    num = sum([ ord(s) for s in plate ])
+    n = sum([ ord(s) for s in plate ])
 
     # Gets an ordered list of the car model names
     keys = list(MODELS.keys())
     keys.sort()
 
     # Gets the desired index
-    i = num%len(MODELS)
+    i = n%len(MODELS)
 
     # Returns the key at given index
     return keys[i]
@@ -75,21 +79,20 @@ class Car():
             _lane: The lane the car is on.
     '''
 
-    def __init__(self, road: 'Road', lane: int):
+    def __init__(self, road: 'Road', lane: int, speed_min: int, speed_max:int, acceleration_min:int, acceleration_max:int, lane_change_prob, collsion_risk: float):
         # Road
         self.road = road
 
         # Car parameters
         #self.plate = secrets.token_urlsafe(4)
-        # pylint: disable=line-too-long
         self.plate = ''.join([random.choice(string.ascii_uppercase) for _ in range(3)]) + str(random.randint(0,9)) + random.choice(string.ascii_uppercase) + str(random.randint(0,9)) + str(random.randint(0,9))
         self.model = model_from_plate(self.plate)
-        self.risk = RISK
-        self.speed_min = MODELS[self.model]["SPEED_MIN"]
-        self.speed_max = MODELS[self.model]["SPEED_MAX"]
-        self.acceleration_min = MODELS[self.model]["ACCELERATION_MIN"]
-        self.acceleration_max = MODELS[self.model]["ACCELERATION_MAX"]
-        self.lange_change_prob = LANE_CHANGE_PROB
+        self.risk = collsion_risk
+        self.speed_min = speed_min
+        self.speed_max = speed_max
+        self.acceleration_min = acceleration_min
+        self.acceleration_max = acceleration_max
+        self.lange_change_prob = lane_change_prob
 
         # Car variables
         self._lane, self._length = self._pos = (lane, 0)
@@ -202,7 +205,6 @@ class Car():
                 available_lanes.append(self.lane+1)
         else:
             # If can diminish lane
-            # pylint: disable=line-too-long
             if (self.lane > self.road.lanes_f) and (force or self.road.is_empty(self.lane-1, self.length)):
                 available_lanes.append(self.lane-1)
             # If can increase lane
@@ -275,19 +277,24 @@ class Road():
             collision_countdown: The number of cycles a collision lasts.
             car_spawn_prob: The probability of a car spawning in a lane in a cycle.
     '''
-    def __init__(self):
+    def __init__(self, name, lanes_f, lanes_b, length, speed_limit, prob_of_new_car, prob_of_changing_lane, prob_of_collision, car_speed_min, car_speed_max, car_acc_min, car_acc_max, collision_fix_time):
 
         # Road parameters
-        self.length = LENGTH
-        self.lanes_f = LANES_F
-        self.lanes_b = LANES_B
-        self.lanes_total = LANES_F + LANES_B
-        # pylint: disable=line-too-long
+        self.length = length
+        self.lanes_f = lanes_f
+        self.lanes_b = lanes_b
+        self.lanes_total = lanes_f + lanes_b
         self.road: list[Union[Car, Collision, None]]=[[None]*self.length for _ in range(self.lanes_total)]
-        self.collision_countdown = COLLISION_COUNTDOWN
-        self.car_spawn_prob = CAR_SPAWN_PROB
-        self.speed_limit = SPEED_LIMIT
-        self.name = "BR-" + str(random.randint(100, 999))
+        self.collision_countdown = collision_fix_time
+        self.car_spawn_prob = prob_of_new_car
+        self.speed_limit = speed_limit
+        self.name = name
+        self.prob_of_changing_lane = prob_of_changing_lane
+        self.prob_of_collision = prob_of_collision
+        self.car_speed_min = car_speed_min
+        self.car_speed_max = car_speed_max
+        self.car_acc_min = car_acc_min
+        self.car_acc_max = car_acc_max
 
         # Road variables
         self.collisions: list[Collision] = []
@@ -305,7 +312,7 @@ class Road():
         # For every lane, choose whether to spawn a car
         for lane in range(self.lanes_total):
             if random.random() > 1 - self.car_spawn_prob and self.road[lane][0] is None:
-                self.road[lane][0] = Car(self, lane)
+                self.road[lane][0] = Car(self, lane, self.car_speed_min, self.car_speed_max, self.car_acc_min, self.car_acc_min, self.prob_of_changing_lane, self.prob_of_collision)
 
     def is_empty(self, lane: int, length:int) -> bool:
         '''
@@ -377,13 +384,11 @@ class Road():
     def all_decide_movement(self):
         '''
             Calls the 'decide_movement' method of every car in the road.
-            Note the order this is done: car farthest from the start first,
-            ti-breaking by lanes (smallest first)
+            Note the order this is done: car farthest from the start first, ti-breaking by lanes (smallest first)
         '''
         for length in range(self.length, -1, -1):
             for lane in range(self.lanes_total):
-                # In this code, any 'pseudo_car' instance is a cell of the
-                # road which type we don't know
+                # In this code, any 'pseudo_car' instance is a cell of the road which type we don't know
                 pseudo_car = self.road[lane][length]
                 if isinstance(pseudo_car, Car):
                     pseudo_car.decide_movement()
@@ -432,7 +437,6 @@ class Road():
                 Cars are colored green and represented by their current speed
                 Collisions are colored red and represented by their countdown
         '''
-        # pylint: disable=redefined-outer-name
         string = ""
 
         # lanes forwards
@@ -467,22 +471,19 @@ class Road():
             string += "\n"
         return string
 
-    def create_output(self):
+    def create_output(self, index):
         '''
             This function creates a file called 'output.txt' and writes the data of the road to it
             This file will be extracted by the ETL process
         '''
-        output = open("output.txt", 'a', encoding='utf-8')
+        os.makedirs(os.path.dirname(f"{main_folder}/{index}.txt"), exist_ok=True)
+        output = open(f"{main_folder}/{index}.txt", 'a', encoding='utf-8')
         output.write(f"> {self.name}\n")
 
         for lane in range(self.lanes_total):
             for length in range(self.length):
                 if isinstance(self.road[lane][length], Car):
                     output.write(f"{self.road[lane][length].plate} 00{lane},{length:03}\n")
-                # suggested solution for writing collisions:
-                elif isinstance(self.road[lane][length], Collision):
-                    for collision in self.road[lane][length].collided_cars:
-                        output.write(f"{collision.plate} 00{lane},{length:03}\n")
         output.close()
 
     def loop(self):
@@ -503,7 +504,6 @@ class Road():
             else:
                 command = input()
                 while command != '':
-                    # pylint: disable=exec-used
                     exec(command)
                     command = input()
 
@@ -527,7 +527,60 @@ class Road():
 
         return True, l
 
+class World():
+    roads = []
+
+    def add_road(self, road:Road):
+        self.roads.append(road)
+    
+    def loop(self, cycles:int=None):
+        i= 0
+        if cycles is None:
+            while True:
+                for road in self.roads:
+                    road.cycle()
+                    road.create_output(i)
+                i+=1
+        else:
+            for i in range(cycles):
+                for road in self.roads:
+                    road.cycle()
+                    road.create_output(i)
+                print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
+            print(" ==== DONE ==== ")
+
+def create_world(filename:str):
+    '''
+        Creates a world from a file
+    '''
+    world = World()
+
+    with open(filename, 'r', encoding='utf-8') as file:
+        for line in file:
+            # define road attributes
+            attr = line.split(' ')
+            name = attr[0]
+            lanes_f = int(attr[1])
+            lanes_b = int(attr[2])
+            length = 100
+            speed_limit = int(attr[3])
+            prob_of_new_car = float(attr[4])/100
+            prob_of_changing_lane = float(attr[5])/100
+            prob_of_collision = float(attr[6])/100
+            car_speed_min = int(attr[7])
+            car_speed_max = int(attr[8])
+            car_acc_min = int(attr[9])
+            car_acc_max = int(attr[10])
+            collision_fix_time = int(attr[11])
+
+            # create road
+            road = Road(name, lanes_f, lanes_b, length, speed_limit, prob_of_new_car, prob_of_changing_lane, prob_of_collision, car_speed_min, car_speed_max, car_acc_min, car_acc_max, collision_fix_time)
+
+            # add road to world
+            world.add_road(road)
+
+    return world
 
 if __name__ == "__main__":
-    r = Road()
-    r.loop()
+    world = create_world('etl/world.txt')
+    world.loop(10000)
