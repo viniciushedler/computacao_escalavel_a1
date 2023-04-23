@@ -608,4 +608,4 @@ def empty_roads_dir():
 if __name__ == "__main__":
     empty_roads_dir()
     world = create_world('etl/world.txt')
-    world.loop(100)
+    world.loop(1000)

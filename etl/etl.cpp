@@ -43,7 +43,7 @@ void process_file_line() {
     }
 
     // faz o processamento aqui
-    string car_plate = process_line.substr(0, 8);
+    string car_plate = process_line.substr(0, 7);
     coords car_pos = coords(process_line.substr(9, 15));
     car* car_obj = roads_obj.update_car(car_plate, car_pos, process_road);
     
