@@ -588,4 +588,4 @@ def create_world(filename:str):
 
 if __name__ == "__main__":
     world = create_world('etl/world.txt')
-    world.loop(100)
+    world.loop(1000)
