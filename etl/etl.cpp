@@ -89,22 +89,32 @@ void create_roads(string file_specifics) {
 int main() {
     // instanciando as rodovias
     create_roads("world.txt");
+    int cycle = 0;
+    while (true) {
+        string file_name = "../roads/" + to_string(cycle) + ".txt";
+        cout << "Reading file " << file_name << endl;
+        int lines_number = read_f(file_name);
 
-    int lines_number = read_f("carros.txt");
+        vector<thread> threads;
+        // cria as threads
+        for (int i = 0; i < MAX_THREADS; i++) {
+            thread t(thread_work);
+            threads.push_back(move(t));
+        }
 
-    vector<thread> threads;
-    // cria as threads
-    for (int i = 0; i < MAX_THREADS; i++) {
-        thread t(thread_work);
-        threads.push_back(move(t));
+        // espera as threads terminarem
+        for (int i = 0; i < MAX_THREADS; i++) {
+            threads[i].join();
+        }
+
+        // cria o objeto dashboard
+        dashboard dashboard_obj(&roads_obj);
+        dashboard_obj.print();
+
+        // Apaga o arquivo recém lido
+        remove(file_name.c_str());
+        
+        // Incrementa o ciclo
+        cycle++;
     }
-
-    // espera as threads terminarem
-    for (int i = 0; i < MAX_THREADS; i++) {
-        threads[i].join();
-    }
-
-    // cria o objeto dashboard
-    dashboard dashboard_obj(&roads_obj);
-    dashboard_obj.print();
 }
