@@ -3,6 +3,7 @@ import random
 if __name__ == "__main__":
     roads_number = 15
     lanes_number_range = [1, 3]
+    length_range = [100, 1000]
     max_speed_range = [12, 24]
     prob_of_new_car_range = [0.1, 0.3]
     prob_of_changing_lane_range = [0.1, 0.3]
@@ -20,6 +21,9 @@ if __name__ == "__main__":
             left_lanes_number = random.randint(lanes_number_range[0], lanes_number_range[1])
             right_lanes_number = random.randint(lanes_number_range[0], lanes_number_range[1])
             f.write(f"{left_lanes_number} {right_lanes_number}")
+
+            length = random.randint(length_range[0], length_range[1])
+            f.write(f" {length}")
 
             max_speed = random.randint(max_speed_range[0], max_speed_range[1])
             f.write(f" {str(max_speed*5).zfill(3)}")

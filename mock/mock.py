@@ -574,15 +574,15 @@ def create_world(filename:str):
             lanes_f = int(attr[1])
             lanes_b = int(attr[2])
             length = 100
-            speed_limit = int(attr[3])
-            prob_of_new_car = float(attr[4])/100
-            prob_of_changing_lane = float(attr[5])/100
-            prob_of_collision = float(attr[6])/100
-            car_speed_min = int(attr[7])
-            car_speed_max = int(attr[8])
-            car_acc_min = int(attr[9])
-            car_acc_max = int(attr[10])
-            collision_fix_time = int(attr[11])
+            speed_limit = int(attr[4])
+            prob_of_new_car = float(attr[5])/100
+            prob_of_changing_lane = float(attr[6])/100
+            prob_of_collision = float(attr[7])/100
+            car_speed_min = int(attr[8])
+            car_speed_max = int(attr[9])
+            car_acc_min = int(attr[10])
+            car_acc_max = int(attr[11])
+            collision_fix_time = int(attr[12])
 
             # create road
             road = Road(name, lanes_f, lanes_b, length, speed_limit, prob_of_new_car, prob_of_changing_lane, prob_of_collision, car_speed_min, car_speed_max, car_acc_min, car_acc_max, collision_fix_time)
