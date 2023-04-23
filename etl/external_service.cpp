@@ -92,10 +92,11 @@ class external_service {
             // > cria novos dados para o veículo
             vector<string> first_names = {
                 "João",  "Maria",  "José",    "Ana",    "Pedro",
-                "Paulo", "Carlos", "Mariana", "Rafael", "Gabriel"};
+                "Paulo", "Carlos", "Mariana", "Rafael", "Gabriel", "Marcelo",
+                "Luís", "Thiago", "Vinicius", "Bruno", "Vanessa", "Breno"};
             vector<string> last_names = {
-                "Silva",     "Santos",  "Souza",      "Oliveira", "Pereira",
-                "Rodrigues", "Almeida", "Nascimento", "Lima",     "Ferreira"};
+                "Silva",     "Santos",  "Souza",      "Oliveira",  "Pereira",
+                "Rodrigues", "Almeida", "Nascimento", "Laguardia", "Ferreira"};
             vector<string> models = {"Gol",   "Palio",  "Uno",     "Celta",
                                      "Corsa", "Civic",  "Corolla", "Fiesta",
                                      "Focus", "Fusion", "Accord",  "Golf"};
