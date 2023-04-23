@@ -11,7 +11,10 @@ using namespace std;
 
 const int MAX_THREADS = 1;
 
-roads roads_obj;  // objeto que contém as rodovias
+// objetos globais de rodovias e dashboard
+roads roads_obj;  
+dashboard dashboard_obj(&roads_obj);
+
 // processando os dados
 mutex lines_queue_mutex;
 vector<string> lines_queue;
@@ -102,10 +105,11 @@ int main() {
     create_roads("world.txt");
     int cycle = 0;
     while (true) {
+        // Lê o arquivo
         string file_name = "../roads/" + to_string(cycle) + ".txt";
-        cout << "Reading file " << file_name << endl;
-        // Lê o arquivo se ele existir, e se não existir, espera até que ele exista	
-        while(!ifstream(file_name));
+        while(!ifstream(file_name)) {
+            dashboard_obj.print_offline();
+        }
         int lines_number = read_f(file_name);
 
         vector<thread> threads;
@@ -123,15 +127,12 @@ int main() {
         // Remove os carros que não foram atualizados
         roads_obj.remove_unupdated_cars();
         
-        // cria o objeto dashboard
-        dashboard dashboard_obj(&roads_obj);
-        
         // Imprime o dashboard
         dashboard_obj.print();
 
         // Apaga o arquivo recém lido
         remove(file_name.c_str());
-        
+
         // Incrementa o ciclo
         cycle++;
     }

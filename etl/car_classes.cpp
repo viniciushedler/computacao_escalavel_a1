@@ -30,16 +30,17 @@ struct coords {
         this->y = y;
     };
 
+    friend ostream& operator<<(ostream& os, const coords& coords);
+
     coords(string line) {
         this->x = stoi(line.substr(0, 3));
         this->y = stoi(line.substr(4, 6));
     };
-
-    ostream& operator<<(ostream& os) {
-        os << "(" << this->x << ", " << this->y << ")";
-        return os;
-    };
 };
+
+std::ostream& operator<<(std::ostream& os, const coords& coords) {
+  return os << "(" << coords.x << ", " << coords.y << ")";
+}
 
 class car {
    public:
