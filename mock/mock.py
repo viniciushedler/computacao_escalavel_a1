@@ -472,7 +472,7 @@ class Road():
         return string
 
     def create_output(self, index):
-        '''
+        ''''
             This function creates a file called 'output.txt' and writes the data of the road to it
             This file will be extracted by the ETL process
         '''

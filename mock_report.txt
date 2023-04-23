@@ -1,0 +1,70 @@
+MOCK:
+
+O arquivo 'mock.py' contém o mock, um simulador de rodovias. É ele que irá simular as rodovias, carros e suas colisões, para então gravar os dados das simulações de maneira que o ETL possa ser alimentado. Consiste de três arquivos: 'world_creator.py', 'world.txt' e 'mock.py', além do diretório 'roads' onde é salvo o output da simulação. Em 'mock.py' há quatro classes relevantes: 'World', 'Road', 'Car' e 'Collision'.
+
+Funcionamento:
+
+Antes de poder executar 'mock.py' é necessário executar 'world_creator.py'. Este script irá criar o arquivo 'world.txt'. Em 'world.txt', cada linha representa os dados de inicialização de uma rodovia distinta, e tais dados estão dispostos na seguinte ordem:
+
+name, lanes_f, lanes_b, length, speed_limit, prob_of_new_car, prob_of_changing_lane, prob_of_collision, car_speed_min, car_speed_max, car_acc_min, car_acc_max, collision_fix_time):
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+O mock foi feito com o objetivo de ser uma simulação de rodovias. Para alcançar isto foi criada uma classe 'World' que contém várias instâncias da classe 'Road'. Cada instância desta classe 'Road' então simula uma única rodovia, e seu comportamento é controlado através de ciclos. A cada ciclo, todos os carros presentes na rodovia decidem sobre acelerar e mudar de via, e assim o fazem. Caso algum carro venha a ter a mesma posição de outro carro na mesma rodovia, ambos são trocados por uma colisão, representada pela classe 'Collision'. Ao final de cada ciclo, há uma chance de que um carro apareça no começo de cada via. 
+Ao final de cada ciclo, o estado atual de todas as rodovias são salvos em arquivos novos, para garantir que nenhum arquivo que esteja sendo lido será escrito. Esta é uma forma resumida do funcionamento do mock. Uma detalhamento maior pode ser encontrado abaixo.
+
+
+
+
+
+
+World:
+
+'World' é a classe que cuida de criar várias instâncias de 'Road', do fluxo de ciclos e da gravação dos dados de cada rodovia. Deve ser criado com a função 'create_world', que retorna um 
+
+
+
+
+
+
+## Road:
+
+### __init__
+
+A inicialização da classe 'Road' toma os seguintes atributos:
+ 
+ __init__(self, name, lanes_f, lanes_b, length, speed_limit, prob_of_new_car, prob_of_changing_lane, prob_of_collision, car_speed_min, car_speed_max, car_acc_min, car_acc_max, collision_fix_time):
+
+* name:
+O nome da rodovia. Utilizado para diferenciar cada rodovia no dashboard
+
+* lanes_f, lanes_b
+A quantidade de vias em um sentido (lanes_forward) e no sentido oposto (lanes_backwards), respectivamente.
+
+* length
+O comprimento da rodovia. O comprimento é referente à rodovia como um todo, sendo igual em todas as suas vias
+
+* speed_limit
+O limite de velocidade da rodovia. É salvo dentro da classe, mas em realidade não é utilizado nesta parte do projeto, sendo somente utilizado no dashboard.
+
+* collision_fix_time:
+Quanto ciclos dura uma colisão antes dela ser removida
+
+* car_speed_min, car_speed_max, car_acc_min, car_acc_max
+
+* prob_of_new_car
+
+
+A cada ciclo há uma chance de um carro, simulado pela classe 'Car', ser criado no começo de uma das vias da rodovia. Depois disso todos os carros
