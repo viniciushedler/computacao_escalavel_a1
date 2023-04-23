@@ -313,7 +313,7 @@ class Road():
         # For every lane, choose whether to spawn a car
         for lane in range(self.lanes_total):
             if random.random() > 1 - self.car_spawn_prob and self.road[lane][0] is None:
-                self.road[lane][0] = Car(self, lane, self.car_speed_min, self.car_speed_max, self.car_acc_min, self.car_acc_min, self.prob_of_changing_lane, self.prob_of_collision)
+                self.road[lane][0] = Car(self, lane, self.car_speed_min, self.car_speed_max, self.car_acc_min, self.car_acc_max, self.prob_of_changing_lane, self.prob_of_collision)
 
     def is_empty(self, lane: int, length:int) -> bool:
         '''
@@ -556,7 +556,12 @@ class World():
                 i+=1
         else:
             for i in range(cycles):
+                # debug mode, do not delete
+                # new = True
                 for road in self.roads:
+                #     if new:
+                #         print(road, end='\r')
+                #         new = False
                     road.cycle()
                     road.create_output(i)
                 os.rename(f"{output_folder}/temp{i}.txt", f"{output_folder}/{i}.txt")  # Rename file to standard name
@@ -576,7 +581,7 @@ def create_world(filename:str):
             name = attr[0]
             lanes_f = int(attr[1])
             lanes_b = int(attr[2])
-            length = 100
+            length = int(attr[3])
             speed_limit = int(attr[4])
             prob_of_new_car = float(attr[5])/100
             prob_of_changing_lane = float(attr[6])/100

@@ -14,6 +14,7 @@
 #define ORANGE  "\033[33m"      /* Orange */
 #define YELLOW  "\033[33m"      /* Yellow */
 #define WHITE   "\033[37m"      /* White */
+#define GREEN   "\033[32m"      /* Green */
 #define BOLD    "\033[1m"       /* Bold */
 #define ITALIC  "\033[3m"       /* Italic */
 #define RETURN  "\x1B[2J\x1B[H"
@@ -75,68 +76,62 @@ class dashboard{
             t5.detach();
         };
 
-        // função para pegar os dados que serão printados
-        void get_data(int i, vector<car> all_cars_info){
+        // Função para printar os dados dos carros
+        void data_car(int i, vector<car> all_cars_info){
             if (all_cars_info[i].with_external_service_info == true){
-
-                // Faz uma tabela com os dados                
-                cout << all_cars_info[i].plate << setw(4)
-                << all_cars_info[i].position << setw(9)
-                << all_cars_info[i].speed  << setw(9)
-                << all_cars_info[i].acceleration << setw(11)  
-                << all_cars_info[i].model << setw(9) 
-                << all_cars_info[i].year  << setw(20) 
+                cout << all_cars_info[i].plate << "\t"
+                << all_cars_info[i].position << "  " << "\t" //setw(9)
+                << all_cars_info[i].speed  << "\t" //(9)
+                << all_cars_info[i].acceleration << "\t" //setw(11)  
+                << all_cars_info[i].model << "\t" //setw(9) 
+                << all_cars_info[i].year  << "\t" //setw(20) 
                 << all_cars_info[i].propietary << endl;
             }
             else{
-                cout << all_cars_info[i].plate << setw(4)
-                << all_cars_info[i].position << setw(9) 
-                << all_cars_info[i].speed  << setw(9)
-                << all_cars_info[i].acceleration 
-                << "                                                        " << endl;
+                cout << all_cars_info[i].plate << "\t"
+                << all_cars_info[i].position << "  " << "\t"//setw(9) 
+                << all_cars_info[i].speed  << "\t" //setw(9)
+                << all_cars_info[i].acceleration << endl;
             }
         };
 
         // função para printar os dados 
         void print(){
+            cout << BOLD << GREEN << "Dashboard" << RESET << endl;
             cout << "Number of roads: " << BOLD << number_roads << RESET << endl;
             cout << "Number of cars: " << BOLD << number_cars << RESET << endl;
             cout << "Number of cars over speed limit: " << BOLD << number_cars_over_speed_limit << RESET << endl;
             cout << "Number of cars at risk of collision: " << BOLD << number_cars_risk_collision << RESET << endl;
 
             // Faz uma tabela com os dados
-
-            cout << "Plate     Position     Speed     Acc     Model     Year         Proprietary" << endl;
-
-            // informations about all cars
+            cout << "Plate\tPosition\tSpeed\tAcc\tModel\tYear\tProprietary" << endl;
+            // Informações dos carros
             for (int j = 0; j < all_cars_info.size(); j++){
                 if (all_cars_info[j].collision_status == 2){
                     std::cout << YELLOW;
-                    get_data(j, all_cars_info);
+                    data_car(j, all_cars_info);
                     std::cout << WHITE;
                 } else if (all_cars_info[j].collision_status == 1){
                     std::cout << ORANGE;
-                    get_data(j, all_cars_info);
+                    data_car(j, all_cars_info);
                     std::cout << WHITE;
                 } else if (all_cars_info[j].is_over_speed_limit == true){
                     std::cout << RED;
-                    get_data(j, all_cars_info);
+                    data_car(j, all_cars_info);
                     std::cout << WHITE;
                 } else{
-                    get_data(j, all_cars_info);
+                    data_car(j, all_cars_info);
                 }
-
+                
                 if (j==6){
                     break;
                 }
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(80));
-            // cout << "\033[13A\033[13J";
-            cout << "\033[13A";
-            // system("CLS");     
+            cout << "\033[2J\033[1;1H";
         };
 
-        // função para printar os dados quando o mock estiver desligado
+        // Função para printar os dados quando o mock estiver desligado
         void print_offline() { 
             cout << RETURN;
             cout << ITALIC << "- All data available were shown -" << RESET << endl;
