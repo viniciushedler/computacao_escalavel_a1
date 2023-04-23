@@ -146,7 +146,7 @@ class road {
     int get_speeding_cars_count() {
         int speeding_cars_count = 0;
         for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
-            if (curr_car->second->speed > this->speed_limit) {
+            if (abs(curr_car->second->speed) > this->speed_limit) {
                 speeding_cars_count++;
             }
         }
@@ -191,7 +191,7 @@ class road {
             curr_car;  // adiciona o carro na matriz
         curr_car->updated = true;
         curr_car->collision_status = get_car_status(plate);
-        if (curr_car->speed > this->speed_limit) {
+        if (abs(curr_car->speed) > this->speed_limit) {
             curr_car->is_over_speed_limit = true;
         } else {
             curr_car->is_over_speed_limit = false;
