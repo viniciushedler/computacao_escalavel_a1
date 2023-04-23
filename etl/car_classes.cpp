@@ -13,7 +13,7 @@
 using namespace std;
 
 const float TIME_SLICE = 0.1;
-const int EXTERNAL_SERVICE_MAX_QUEUE_SIZE = 1;
+const int EXTERNAL_SERVICE_MAX_QUEUE_SIZE = 50;
 #define SAFE 0
 #define WARNING 1
 #define COLIDED 2
@@ -90,14 +90,14 @@ class car {
     // Calcula a nova velocidade
     void calculate_speed(coords new_position) {
         // Calcula e atualiza a velocidade
-        this->speed = (this->position.y - new_position.y) / TIME_SLICE;
+        this->speed = (new_position.y - this->position.y) / TIME_SLICE;
     };
 
     // Calcula a nova aceleração
     void calculate_acceleration(coords new_position) {
         // Calcula e atualiza a aceleração
         this->acceleration =
-            (this->speed - (position.y - new_position.y)) / TIME_SLICE;
+            (((new_position.y - this->position.y) / TIME_SLICE) - this->speed) / (TIME_SLICE * 2);
     };
 };
 
@@ -106,6 +106,7 @@ class road {
     int length;
     int width;
     int speed_limit;
+    mutex cars_mutex;
     unordered_map<string, car*> cars;
     unordered_map<int, unordered_map<int, unordered_map<string, car*>>>
         road_matrix;
@@ -173,9 +174,11 @@ class road {
     // Retorna a quantidade de carros com risco de colisão
     int get_collision_risk_cars_count() {
         int collision_risk_cars_count = 0;
-        for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
-            if (curr_car->second && is_car_in_collision_risk(curr_car->first)) {
-                collision_risk_cars_count++;
+        { lock_guard<mutex> lock(cars_mutex);
+            for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
+                if (curr_car->second && is_car_in_collision_risk(curr_car->first)) {
+                    collision_risk_cars_count++;
+                }
             }
         }
         return collision_risk_cars_count;
@@ -202,15 +205,17 @@ class road {
 
     // Remove carros que não foram atualizados
     void remove_unupdated_cars() {
-        for (auto curr_car = cars.begin(); curr_car != cars.end();) {
-            if (curr_car->second->updated) {
-                curr_car->second->updated = false;
-                ++curr_car;
-            } else {
-                road_matrix[curr_car->second->position.x]
-                           [curr_car->second->position.y]
-                               .extract(curr_car->first);
-                curr_car = cars.erase(curr_car);
+        { lock_guard<mutex> lock(cars_mutex);
+            for (auto curr_car = cars.begin(); curr_car != cars.end();) {
+                if (curr_car->second->updated) {
+                    curr_car->second->updated = false;
+                    ++curr_car;
+                } else {
+                    road_matrix[curr_car->second->position.x]
+                            [curr_car->second->position.y]
+                                .extract(curr_car->first);
+                    curr_car = cars.erase(curr_car);
+                }
             }
         }
     };
@@ -235,16 +240,19 @@ class road {
         for (int i = 0; i < tries; i++) {
             // Tenta acessar o serviço externo por 1 segundo
             if (external_service_mutex->try_lock_for(chrono::seconds(1))) {
-                // Verifica se os dados do carro já foram atualizados
+                // Verifica se o carro ainda está na rodovia
                 auto it = cars.find(plate);
                 if (it == cars.end()) {
+                    external_service_mutex->unlock();
                     return;
                 }
+                // Verifica se o carro já tem as informações do serviço externo
                 car* curr_car = it->second;
                 if (curr_car->with_external_service_info) {
+                    external_service_mutex->unlock();
                     return;
                 }
-                // Tenta acessar o serviço externo por 1 segundo
+                // Tenta acessar o serviço externo
                 if (external_service_obj->query_vehicle(plate)) {
                     curr_car->with_external_service_info = true;
                     curr_car->set_propietary(external_service_obj->get_name());

@@ -18,11 +18,11 @@ using namespace std;
 
 class external_service {
    private:
-    int queue_check_time = 200;   // tempo em milisegundos para checar a fila
-    float chance_of_error = 0.1;  // chance de dar erro no serviço
-    float chance_of_delay = 0.1;  // chance de dar delay no serviço
-    int max_delay_time = 2000;    // tempo máximo de delay em milisegundos
-    int max_queue_size = 5;       // tamanho máximo da fila
+    int queue_check_time = 100;   // tempo em milisegundos para checar a fila
+    float chance_of_error = 0.2;  // chance de dar erro no serviço
+    float chance_of_delay = 0.01; // chance de dar delay no serviço
+    int max_delay_time = 500;     // tempo máximo de delay em milisegundos
+    int max_queue_size = 50;      // tamanho máximo da fila
 
     // resultado da query
     string name;
