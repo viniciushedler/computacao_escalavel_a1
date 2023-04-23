@@ -91,14 +91,14 @@ class car {
     // Calcula a nova velocidade
     void calculate_speed(coords new_position) {
         // Calcula e atualiza a velocidade
-        this->speed = (this->position.x - new_position.x) / TIME_SLICE;
+        this->speed = (this->position.y - new_position.y) / TIME_SLICE;
     };
 
     // Calcula a nova aceleração
     void calculate_acceleration(coords new_position) {
         // Calcula e atualiza a aceleração
         this->acceleration =
-            (this->speed - (position.x - new_position.x)) / TIME_SLICE;
+            (this->speed - (position.y - new_position.y)) / TIME_SLICE;
     };
 };
 
@@ -146,7 +146,7 @@ class road {
     int get_speeding_cars_count() {
         int speeding_cars_count = 0;
         for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
-            if (curr_car->second->speed > this->speed_limit) {
+            if (abs(curr_car->second->speed) > this->speed_limit) {
                 speeding_cars_count++;
             }
         }
@@ -157,12 +157,12 @@ class road {
     bool is_car_in_collision_risk(string plate) {
         car* curr_car = cars.at(plate);
         int limit_of_range =
-            curr_car->position.x + curr_car->speed * this->SECURE_TIME_DISTANCE;
+            curr_car->position.y + curr_car->speed * this->SECURE_TIME_DISTANCE;
         limit_of_range =
             limit_of_range > this->length ? this->length : limit_of_range;
-        for (int x = curr_car->position.x - 1; x <= curr_car->position.x + 1;
-             x++) {
-            if (road_matrix[x][curr_car->position.y].size() > 1) {
+        for (int y = curr_car->position.y - 1; y <= curr_car->position.y + 1;
+             y++) {
+            if (road_matrix[curr_car->position.x][y].size() > 1) {
                 return true;
             }
         }
@@ -191,7 +191,7 @@ class road {
             curr_car;  // adiciona o carro na matriz
         curr_car->updated = true;
         curr_car->collision_status = get_car_status(plate);
-        if (curr_car->speed > this->speed_limit) {
+        if (abs(curr_car->speed) > this->speed_limit) {
             curr_car->is_over_speed_limit = true;
         } else {
             curr_car->is_over_speed_limit = false;
@@ -228,11 +228,13 @@ class road {
     // Função para passar para a thread acessar o serviço externo
     void thread_acess_external_service(string plate, timed_mutex* external_service_mutex, external_service* external_service_obj) {
         if (external_service_mutex->try_lock_for(chrono::seconds(5))) {
-            // Acessa o serviço externo
-            cars.at(plate)->with_external_service_info = true;
-            cars.at(plate)->set_propietary(external_service_obj->get_name());
-            cars.at(plate)->set_model(external_service_obj->get_model());
-            cars.at(plate)->set_year(external_service_obj->get_year());
+            // Tenta acessar o serviço externo por 5 segundos
+            if (external_service_obj->query_vehicle(plate)) {
+                cars.at(plate)->with_external_service_info = true;
+                cars.at(plate)->set_propietary(external_service_obj->get_name());
+                cars.at(plate)->set_model(external_service_obj->get_model());
+                cars.at(plate)->set_year(external_service_obj->get_year());
+            }
 
             // Desbloqueia o acesso ao serviço externo
             external_service_mutex->unlock();
@@ -241,9 +243,13 @@ class road {
         }        
     };
         
-    // Acessa o serviço externo em uma thread separada (detached e com timeout)
+    // Acessa o serviço externo em uma thread separada 
     void access_external_service(string plate, external_service* external_service_obj, timed_mutex* external_service_mutex) {
+
+        // Cria a thread para acessar o serviço externo
         thread external_service_thread(&road::thread_acess_external_service, this, plate, external_service_mutex, external_service_obj);
+        
+        // Desconecta a thread da main thread (já que o serviço não é crucial para o funcionamento do programa)
         external_service_thread.detach();
     };
 };
