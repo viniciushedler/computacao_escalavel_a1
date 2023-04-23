@@ -556,16 +556,12 @@ class World():
                 i+=1
         else:
             for i in range(cycles):
-                new = True
                 for road in self.roads:
-                    if new:
-                        print(road)
-                        new = False
                     road.cycle()
                     road.create_output(i)
                 os.rename(f"{output_folder}/temp{i}.txt", f"{output_folder}/{i}.txt")  # Rename file to standard name
-            #     print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
-            # print(" ==== DONE ==== ")
+                print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
+            print(" ==== DONE ==== ")
 
 def create_world(filename:str):
     '''
