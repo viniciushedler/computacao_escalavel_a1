@@ -477,8 +477,8 @@ class Road():
             This function creates a file called 'index.txt' and writes the data of the road to it
             This file will be extracted by the ETL process
         '''
-        os.makedirs(os.path.dirname(f"{temp_folder}/{index}.txt"), exist_ok=True)
-        output = open(f"{temp_folder}/{index}.txt", 'a', encoding='utf-8')
+        os.makedirs(os.path.dirname(f"{output_folder}/temp{index}.txt"), exist_ok=True)
+        output = open(f"{output_folder}/temp{index}.txt", 'a', encoding='utf-8')
         output.write(f"> {self.name}\n")
 
         for lane in range(self.lanes_total):
@@ -498,7 +498,7 @@ class Road():
             self.cycle()
             os.system('cls')
             print(self)
-            self.create_output()
+            self.create_output(0)
 
             if self.counter > 0:
                 self.counter -= 1
@@ -541,9 +541,7 @@ class World():
                 for road in self.roads:
                     road.cycle()
                     road.create_output(i)
-                os.makedirs(f"{temp_folder}/{i}.txt", exist_ok=True)
-                os.makedirs(f"{output_folder}/{i}.txt", exist_ok=True)
-                os.rename(f"{temp_folder}/{i}.txt", f"{output_folder}/{i}.txt") # Move files to output folder
+                os.rename(f"{output_folder}/temp{i}.txt", f"{output_folder}/{i}.txt")  # Rename file to standard name
                 print(f"Cycle {i} done", end='\r')
                 i+=1
         else:
@@ -551,9 +549,7 @@ class World():
                 for road in self.roads:
                     road.cycle()
                     road.create_output(i)
-                os.makedirs(f"{temp_folder}/{i}.txt", exist_ok=True)
-                os.makedirs(f"{output_folder}/{i}.txt", exist_ok=True)
-                os.rename(f"{temp_folder}/{i}.txt", f"{output_folder}/{i}.txt") # Move files to output folder
+                os.rename(f"{output_folder}/temp{i}.txt", f"{output_folder}/{i}.txt")  # Rename file to standard name
                 print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
             print(" ==== DONE ==== ")
 
@@ -591,4 +587,4 @@ def create_world(filename:str):
 
 if __name__ == "__main__":
     world = create_world('etl/world.txt')
-    world.loop()
+    world.loop(100)
