@@ -4,7 +4,7 @@ if __name__ == "__main__":
     roads_number = 15
     lanes_number_range = [1, 3]
     length_range = [100, 1000]
-    max_speed_range = [60, 120]
+    max_speed_range = [12, 24]
     prob_of_new_car_range = [0.1, 0.3]
     prob_of_changing_lane_range = [0.1, 0.3]
     prob_of_collision_range = [0.01, 0.05]
