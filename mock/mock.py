@@ -541,6 +541,10 @@ class World():
                 for road in self.roads:
                     road.cycle()
                     road.create_output(i)
+                try:
+                    os.remove(f"{temp_folder}/{i}.txt")
+                except FileNotFoundError:
+                    pass
                 os.makedirs(f"{temp_folder}/{i}.txt", exist_ok=True)
                 os.makedirs(f"{output_folder}/{i}.txt", exist_ok=True)
                 os.rename(f"{temp_folder}/{i}.txt", f"{output_folder}/{i}.txt") # Move files to output folder
@@ -551,6 +555,10 @@ class World():
                 for road in self.roads:
                     road.cycle()
                     road.create_output(i)
+                try:
+                    os.remove(f"{temp_folder}/{i}.txt")
+                except FileNotFoundError:
+                    pass
                 os.makedirs(f"{temp_folder}/{i}.txt", exist_ok=True)
                 os.makedirs(f"{output_folder}/{i}.txt", exist_ok=True)
                 os.rename(f"{temp_folder}/{i}.txt", f"{output_folder}/{i}.txt") # Move files to output folder
