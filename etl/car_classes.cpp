@@ -228,11 +228,13 @@ class road {
     // Função para passar para a thread acessar o serviço externo
     void thread_acess_external_service(string plate, timed_mutex* external_service_mutex, external_service* external_service_obj) {
         if (external_service_mutex->try_lock_for(chrono::seconds(5))) {
-            // Acessa o serviço externo
-            cars.at(plate)->with_external_service_info = true;
-            cars.at(plate)->set_propietary(external_service_obj->get_name());
-            cars.at(plate)->set_model(external_service_obj->get_model());
-            cars.at(plate)->set_year(external_service_obj->get_year());
+            // Tenta acessar o serviço externo por 5 segundos
+            if (external_service_obj->query_vehicle(plate)) {
+                cars.at(plate)->with_external_service_info = true;
+                cars.at(plate)->set_propietary(external_service_obj->get_name());
+                cars.at(plate)->set_model(external_service_obj->get_model());
+                cars.at(plate)->set_year(external_service_obj->get_year());
+            }
 
             // Desbloqueia o acesso ao serviço externo
             external_service_mutex->unlock();
@@ -241,9 +243,13 @@ class road {
         }        
     };
         
-    // Acessa o serviço externo em uma thread separada (detached e com timeout)
+    // Acessa o serviço externo em uma thread separada 
     void access_external_service(string plate, external_service* external_service_obj, timed_mutex* external_service_mutex) {
+
+        // Cria a thread para acessar o serviço externo
         thread external_service_thread(&road::thread_acess_external_service, this, plate, external_service_mutex, external_service_obj);
+        
+        // Desconecta a thread da main thread (já que o serviço não é crucial para o funcionamento do programa)
         external_service_thread.detach();
     };
 };
