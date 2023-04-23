@@ -129,9 +129,11 @@ class road {
     };
 
     // Cria um carro com a placa especificada
-    void create_car(string plate, coords position) {
-        cars.insert(pair<string, car*>(plate, new car(plate, position)));
-        road_matrix[position.x][position.y][plate] = cars.at(plate);
+    car* create_car(string plate, coords position) {
+        car* new_car = new car(plate, position);
+        cars.insert(pair<string, car*>(plate, new_car));
+        road_matrix[position.x][position.y][plate] = new_car;
+        return new_car;
     };
 
     // Retorna o carro com a placa especificada
@@ -179,7 +181,7 @@ class road {
     };
 
     // Atualiza a posição do carro com a placa especificada
-    void update_car(string plate, coords new_position, timed_mutex* external_mutex, external_service* external_service_obj) {
+    car* update_car(string plate, coords new_position, timed_mutex* external_mutex, external_service* external_service_obj) {
         car* curr_car = cars.at(plate);
         road_matrix[curr_car->position.x][curr_car->position.y].erase(
             plate);  // remove o carro da matriz
@@ -194,6 +196,7 @@ class road {
         } else {
             curr_car->is_over_speed_limit = false;
         }
+        return curr_car;
     };
 
     // Remove carros que não foram atualizados
@@ -226,45 +229,43 @@ class road {
     };
 
     // Função para passar para a thread acessar o serviço externo
-    void thread_acess_external_service(string plate,
-                                       timed_mutex* external_service_mutex,
-                                       external_service* external_service_obj) {
-        if (external_service_mutex->try_lock_for(chrono::seconds(5))) {
-            // Verifica se os dados do carro já foram atualizados
-            auto it = cars.find(plate);
-            if (it == cars.end()) {
-                return;
-            }
-            car* curr_car = it->second;
-            if (curr_car->with_external_service_info) {
-                return;
-            }
-            // Tenta acessar o serviço externo por 5 segundos
-            if (external_service_obj->query_vehicle(plate)) {
-                curr_car->with_external_service_info = true;
-                curr_car->set_propietary(external_service_obj->get_name());
-                curr_car->set_model(external_service_obj->get_model());
-                curr_car->set_year(external_service_obj->get_year());
-            }
+    void thread_acess_external_service(string plate, timed_mutex* external_service_mutex, external_service* external_service_obj, int tries=1) {
+        // Tenta acessar o serviço externo no máximo n vezes
+        for (int i = 0; i < tries; i++) {
+            // Tenta acessar o serviço externo por 1 segundo
+            if (external_service_mutex->try_lock_for(chrono::seconds(1))) {
+                // Verifica se os dados do carro já foram atualizados
+                auto it = cars.find(plate);
+                if (it == cars.end()) {
+                    return;
+                }
+                car* curr_car = it->second;
+                if (curr_car->with_external_service_info) {
+                    return;
+                }
+                // Tenta acessar o serviço externo por 1 segundo
+                if (external_service_obj->query_vehicle(plate)) {
+                    curr_car->with_external_service_info = true;
+                    curr_car->set_propietary(external_service_obj->get_name());
+                    curr_car->set_model(external_service_obj->get_model());
+                    curr_car->set_year(external_service_obj->get_year());
+                }
 
-            // Desbloqueia o acesso ao serviço externo
-            external_service_mutex->unlock();
-        } else {
-            return;  // Não conseguiu acessar o serviço externo
-        }
+                // Desbloqueia o acesso ao serviço externo
+                external_service_mutex->unlock();
+                return;
+            }   
+        } 
     };
 
     // Acessa o serviço externo em uma thread separada
     void access_external_service(string plate,
                                  timed_mutex* external_service_mutex,
-                                 external_service* external_service_obj) {
+                                 external_service* external_service_obj, int tries=1) {
         // Cria a thread para acessar o serviço externo
-        thread external_service_thread(&road::thread_acess_external_service,
-                                       this, plate, external_service_mutex,
-                                       external_service_obj);
-
-        // Desconecta a thread da main thread (já que o serviço não é crucial
-        // para o funcionamento do programa)
+        thread external_service_thread(&road::thread_acess_external_service, this, plate, external_service_mutex, external_service_obj, tries);
+        
+        // Desconecta a thread da main thread (já que o serviço não é crucial para o funcionamento do programa)
         external_service_thread.detach();
     };
 };
@@ -278,19 +279,17 @@ class roads {
 
     roads(){};
 
-    void update_car(string plate, coords position, string road_name) {
+    car* update_car(string plate, coords position, string road_name) {
         // define a rodovia
         road* curr_road = roads_list.at(road_name);
 
         // define o carro
         if (!curr_road->has_car(plate)) {  // se o carro ainda não existe
-            curr_road->create_car(plate, position);
-            return;
+            return curr_road->create_car(plate, position);
         };
 
         // atualiza a posição do carro
-        curr_road->update_car(plate, position, &external_service_mutex,
-                              external_service_obj);
+        return curr_road->update_car(plate, position, &external_service_mutex, external_service_obj);
     }
 
     // Retorna a quatidade de rodovias
@@ -350,7 +349,7 @@ class roads {
     };
 
     // Acessa o serviço externo
-    void access_external_service(string plate, string road_name) {
+    void access_external_service(string plate, string road_name, int tries) {
         roads_list.at(road_name)->access_external_service(
             plate, &external_service_mutex, external_service_obj);
     };

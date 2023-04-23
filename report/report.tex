@@ -98,23 +98,24 @@
     `world.txt'. Em `world.txt', cada linha representa os dados de inicialização de uma rodovia distinta, e tais
     dados estão dispostos na seguinte ordem:
 
-    * nome da rodovia
-    * quantidade de vias no sentido principal
-    * quantidade de vias no sentido oposto
-    * comprimento da via
-    * limite de velocidade da via
-    * probabilidade de um novo carro entrar em alguma via a cada ciclo
-    * probabilidade de um carro mudar de via arbitrariamente
-    * probabilidade de um carro não tentar evitar uma colisão
-    * velocidade mínima dos carros
-    * velocidade máxima dos carros
-    * aceleração mínima dos carros
-    * aceleração máxima dos carros
-    * quantidade de ciclos para uma colisão ser removida
-
+    \begin{itemize}
+    \item nome da rodovia
+    \item quantidade de vias no sentido principal
+    \item quantidade de vias no sentido oposto
+    \item comprimento da via
+    \item limite de velocidade da via
+    \item probabilidade de um novo carro entrar em alguma via a cada ciclo
+    \item probabilidade de um carro mudar de via arbitrariamente
+    \item probabilidade de um carro não tentar evitar uma colisão
+    \item velocidade mínima dos carros
+    \item velocidade máxima dos carros
+    \item aceleração mínima dos carros
+    \item aceleração máxima dos carros
+    \item quantidade de ciclos para uma colisão ser removida
+    \end{itemize}
     Os dados de `world.txt' são escolhidos aleatóriamente em `world\_creator.py', dentro de intervalos selecionados.
 
-    \subsubsection{World}
+    \subsubsection*{World}
     Assim que o arquivo `mock.py' é executado, é rodada a função `create\_world'. Esta função irá criar uma instância
     da classe `World' com rodovias contendo os dados em `world.txt'. Com as rodovias criadas, a instância de `World'
     entrará em loop.
@@ -124,7 +125,7 @@
     atual foi executado para todas as rodovias, o arquivo será transferido para o diretório `roads'.
 
 
-    \subsubsection{Road}
+    \subsubsection*{Road}
     Quando for criada, uma rodovia recebe os parâmetros mencionados anteriormente e os salva. Além disto, cria
     uma lista 2D dentro de si contendo as vias. Ao ser inicializada, cada via será uma lista de None com comprimento
     igual ao comprimento da rodovia.
@@ -136,10 +137,12 @@
     ele.
 
     Quando um carro se move, há três possibilidades:
-    - O carro se moveu sem problemas. Neste caso, apenas é criada referência ao objeto do carro na nova posição
-    - O carro se move para uma posição além do fim da via. Neste caso nada acontece além do passo de remoção
-    - O carro se move para uma posição onde já há um carro ou colisão. Neste caso é  criada uma nova colisão ou o
+    \begin{itemize}
+    \item O carro se moveu sem problemas. Neste caso, apenas é criada referência ao objeto do carro na nova posição
+    \item O carro se move para uma posição além do fim da via. Neste caso nada acontece além do passo de remoção
+    \item O carro se move para uma posição onde já há um carro ou colisão. Neste caso é  criada uma nova colisão ou o
     carro é adicionado à colisão já existente no local.
+    \end{itemize}
     
     Independente do caso, o valor na posição antiga do carro é substituído por None.
     
@@ -150,18 +153,18 @@
     que o atributo `car\_spawn\_prob' (float entre 0 e 1), um novo carro é criado no começo de tal via.
     
 
-    \subsubsection{World}
-
-    \subsubsection{Road}
+    \subsubsection*{Car}
     Os objetos de carro são criados em algum objeto `Road'. Assim, recebem de `Road' os seguintes atributos:
 
-    * via em que estão
-    * velocidade mínima
-    * velocidade máxima
-    * aceleração mínima
-    * aceleração máxima
-    * chance de trocar de via arbitrariamente
-    * chance de não evitar uma colisão
+    \begin{itemize}
+    \item via em que estão
+    \item velocidade mínima
+    \item velocidade máxima
+    \item aceleração mínima
+    \item aceleração máxima
+    \item chance de trocar de via arbitrariamente
+    \item chance de não evitar uma colisão
+    \end{itemize}
 
     Receber estes atributos diretamente da rodovia significa que eles são iguais para todos os carros (com
     exceção do atributo via). Note que os atributos de velocidade e aceleração são referentes à mecânica do

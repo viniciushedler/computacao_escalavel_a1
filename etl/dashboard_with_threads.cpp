@@ -7,8 +7,6 @@
 #include <algorithm>
 #include <thread>
 
-#include "car_classes.cpp"
-
 // Define cores para o terminal
 #define RESET   "\033[0m"
 #define RED     "\033[31m"      /* Red */
@@ -24,6 +22,7 @@ class dashboard{
     int a = 0;
     int b = 0;
     int c = 0;
+    vector<int> all_cars_info;
 };
 
 dashboard dash;

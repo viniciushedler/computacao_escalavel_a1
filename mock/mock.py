@@ -498,7 +498,7 @@ class Road():
             self.cycle()
             os.system('cls')
             print(self)
-            self.create_output()
+            self.create_output(0)
 
             if self.counter > 0:
                 self.counter -= 1
@@ -541,21 +541,28 @@ class World():
                 for road in self.roads:
                     road.cycle()
                     road.create_output(i)
-                try:
-                    os.remove(f"{output_folder}/{i}.txt") # Remove old files
-                except:
-                    pass
+                try: os.remove(f"{temp_folder}/{i}.txt")
+                except: pass
+                try: os.remove(f"{output_folder}/{i}.txt")
+                except: pass
+
+                os.makedirs(f"{temp_folder}/{i}.txt", exist_ok=True)
+                os.makedirs(f"{output_folder}/{i}.txt", exist_ok=True)
                 os.rename(f"{temp_folder}/{i}.txt", f"{output_folder}/{i}.txt") # Move files to output folder
+                print(f"Cycle {i} done", end='\r')
                 i+=1
         else:
             for i in range(cycles):
                 for road in self.roads:
                     road.cycle()
                     road.create_output(i)
-                try:
-                    os.remove(f"{output_folder}/{i}.txt") # Remove old files
-                except:
-                    pass
+                try: os.remove(f"{temp_folder}/{i}.txt")
+                except: pass
+                try: os.remove(f"{output_folder}/{i}.txt")
+                except: pass
+                
+                os.makedirs(f"{temp_folder}/{i}.txt", exist_ok=True)
+                os.makedirs(f"{output_folder}/{i}.txt", exist_ok=True)
                 os.rename(f"{temp_folder}/{i}.txt", f"{output_folder}/{i}.txt") # Move files to output folder
                 print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
             print(" ==== DONE ==== ")
