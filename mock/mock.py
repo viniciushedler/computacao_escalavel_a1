@@ -479,13 +479,22 @@ class Road():
         output = open(f"{output_folder}/temp{index}.txt", 'a', encoding='utf-8')
         output.write(f"> {self.name}\n")
 
-        for lane in range(self.lanes_total):
+        for lane in range(self.lanes_f):
             for length in range(self.length):
                 if isinstance(self.road[lane][length], Car):
                     output.write(f"{self.road[lane][length].plate} {str(lane).zfill(3)},{length:03}\n")
                 elif isinstance(self.road[lane][length], Collision):
                     for c in self.road[lane][length].collided_cars:
                         output.write(f"{c.plate} {str(lane).zfill(3)},{length:03}\n")
+        
+        for lane in range(self.lanes_f, self.lanes_total):
+            for length in range(self.length):
+                i_length = self.length - length - 1 # inverts the position of the car
+                if isinstance(self.road[lane][length], Car):
+                    output.write(f"{self.road[lane][length].plate} {str(lane).zfill(3)},{i_length:03}\n")
+                elif isinstance(self.road[lane][length], Collision):
+                    for c in self.road[lane][length].collided_cars:
+                        output.write(f"{c.plate} {str(lane).zfill(3)},{i_length:03}\n")
         output.close()
 
     def loop(self):
@@ -586,6 +595,17 @@ def create_world(filename:str):
 
     return world
 
+def empty_roads_dir():
+    run = True
+    i = 0
+    while run:
+        if os.path.exists(f'roads/{i}.txt'):
+            os.remove(f'roads/{i}.txt')
+            i += 1
+        else:
+            run = False
+
 if __name__ == "__main__":
+    empty_roads_dir()
     world = create_world('etl/world.txt')
     world.loop(1000)
