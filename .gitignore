@@ -1,4 +1,5 @@
 /__pycache__/**
+mock/__pycache__/**
 etl/etl
 .vscode/*
 dashboard_test
@@ -6,4 +7,5 @@ etl/dashboard_class
 etl/external_service
 output.txt
 roads/**
+temp/**
 etl/dashboard_with_threads
