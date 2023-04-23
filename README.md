@@ -10,6 +10,7 @@ COMPUTACAO_ESCALAVEL_A1
 └─── etl
 |   |   car_classes.cpp                     → (?)
 |   |   dashboard_class.cpp                 → (?)
+|   |   dashboard_with_threadschpp          → (?)
 |   |   etl.cpp                             → (?)
 |   |   external_service.cpp                → (?)
 |
@@ -18,31 +19,30 @@ COMPUTACAO_ESCALAVEL_A1
 |   |   report.tex                          → Arquivo fonte do relatório
 |   |   ***(arquivos auxiliares do LaTeX)
 |
-└─ mock.py                                  → Simulador de Rodovias
+└─── mock.py                                → Simulador de Rodovias
+|   |   ansi.py                             → Classe de cores
+|   |   mock.py                             → Scrip do Simulador
+|   |   parameters.py                       → Parâmetros do simulador
 |
-└─ parameters.py                            → Parâmetros do simulador
+└─ dashboard_test.cpp                       → Teste do Dashboard
 |
-└─ progressive.py                           → (?)
-|
-└─ world_creator.py                         → (?)
+└─ world_creator.py                         → Criação do mundo
 ```
 
 ### Execução
 
-Para executar o simulador, bastar estar no diretório raiz do projeto e executar o comando:
+Para executar o simulador, bastar estar no diretório raiz do projeto e executar o script de criação do mundo:
 
 ```bash
-python mock.py
+python world_creator.py
 ```
 
-Para atualizar o ciclo do simulador, basta apertar a tecla ENTER. Para sair do simulador, basta apertar a tecla ESC (?).
+Após a criação do mundo, basta executar o simulador:
 
-Além disso, é possível definir a quantidade de ciclos e carros via CLI, como no exemplo abaixo:
-
-(?????)
 ```bash
-python mock.py --cycles 100 --cars 1000
+python mock/mock.py
 ```
+
 
 ### Avaliação
  - Modelagem geral do sistema.
@@ -57,8 +57,9 @@ python mock.py --cycles 100 --cars 1000
 ### Relatório
  - [X] Modelagem do Trabalho
  - [X] Mock
- - [] ETL
+ - [X] ETL
  - [] Dashboard
+ - [-] Relatório
  - [-] Problemas e Soluções
  - [] Conclusão
 
