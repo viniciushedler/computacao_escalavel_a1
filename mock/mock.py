@@ -499,6 +499,7 @@ class Road():
             os.system('cls')
             print(self)
             self.create_output(0)
+            self.create_output(0)
 
             if self.counter > 0:
                 self.counter -= 1
