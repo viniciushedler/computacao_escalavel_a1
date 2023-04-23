@@ -576,7 +576,7 @@ def create_world(filename:str):
             name = attr[0]
             lanes_f = int(attr[1])
             lanes_b = int(attr[2])
-            length = 100
+            length = int(attr[3])
             speed_limit = int(attr[4])
             prob_of_new_car = float(attr[5])/100
             prob_of_changing_lane = float(attr[6])/100
