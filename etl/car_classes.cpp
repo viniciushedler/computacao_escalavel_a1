@@ -91,14 +91,14 @@ class car {
     // Calcula a nova velocidade
     void calculate_speed(coords new_position) {
         // Calcula e atualiza a velocidade
-        this->speed = (this->position.x - new_position.x) / TIME_SLICE;
+        this->speed = (this->position.y - new_position.y) / TIME_SLICE;
     };
 
     // Calcula a nova aceleração
     void calculate_acceleration(coords new_position) {
         // Calcula e atualiza a aceleração
         this->acceleration =
-            (this->speed - (position.x - new_position.x)) / TIME_SLICE;
+            (this->speed - (position.y - new_position.y)) / TIME_SLICE;
     };
 };
 
@@ -157,12 +157,12 @@ class road {
     bool is_car_in_collision_risk(string plate) {
         car* curr_car = cars.at(plate);
         int limit_of_range =
-            curr_car->position.x + curr_car->speed * this->SECURE_TIME_DISTANCE;
+            curr_car->position.y + curr_car->speed * this->SECURE_TIME_DISTANCE;
         limit_of_range =
             limit_of_range > this->length ? this->length : limit_of_range;
-        for (int x = curr_car->position.x - 1; x <= curr_car->position.x + 1;
-             x++) {
-            if (road_matrix[x][curr_car->position.y].size() > 1) {
+        for (int y = curr_car->position.y - 1; y <= curr_car->position.y + 1;
+             y++) {
+            if (road_matrix[curr_car->position.x][y].size() > 1) {
                 return true;
             }
         }
