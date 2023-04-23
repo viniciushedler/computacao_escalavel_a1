@@ -6,6 +6,9 @@ Funcionamento:
 
 Antes de poder executar 'mock.py' é necessário executar 'world_creator.py'. Este script irá criar o arquivo 'world.txt'. Em 'world.txt', cada linha representa os dados de inicialização de uma rodovia distinta, e tais dados estão dispostos na seguinte ordem:
 
+* nome da rodovia
+* quantidade
+
 name, lanes_f, lanes_b, length, speed_limit, prob_of_new_car, prob_of_changing_lane, prob_of_collision, car_speed_min, car_speed_max, car_acc_min, car_acc_max, collision_fix_time):
 
 
