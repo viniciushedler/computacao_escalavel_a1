@@ -17,7 +17,8 @@ from typing import Union
 from ansi import ANSI
 from parameters import * #pylint:disable = wildcard-import, unused-wildcard-import
 
-main_folder = "roads"
+output_folder = "roads"
+temp_folder = "temp"
 
 def model_from_plate(plate):
     '''
@@ -473,11 +474,11 @@ class Road():
 
     def create_output(self, index):
         '''
-            This function creates a file called 'output.txt' and writes the data of the road to it
+            This function creates a file called 'index.txt' and writes the data of the road to it
             This file will be extracted by the ETL process
         '''
-        os.makedirs(os.path.dirname(f"{main_folder}/{index}.txt"), exist_ok=True)
-        output = open(f"{main_folder}/{index}.txt", 'a', encoding='utf-8')
+        os.makedirs(os.path.dirname(f"{temp_folder}/{index}.txt"), exist_ok=True)
+        output = open(f"{temp_folder}/{index}.txt", 'a', encoding='utf-8')
         output.write(f"> {self.name}\n")
 
         for lane in range(self.lanes_total):
@@ -540,12 +541,22 @@ class World():
                 for road in self.roads:
                     road.cycle()
                     road.create_output(i)
+                try:
+                    os.remove(f"{output_folder}/{i}.txt") # Remove old files
+                except:
+                    pass
+                os.rename(f"{temp_folder}/{i}.txt", f"{output_folder}/{i}.txt") # Move files to output folder
                 i+=1
         else:
             for i in range(cycles):
                 for road in self.roads:
                     road.cycle()
                     road.create_output(i)
+                try:
+                    os.remove(f"{output_folder}/{i}.txt") # Remove old files
+                except:
+                    pass
+                os.rename(f"{temp_folder}/{i}.txt", f"{output_folder}/{i}.txt") # Move files to output folder
                 print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
             print(" ==== DONE ==== ")
 
@@ -583,4 +594,4 @@ def create_world(filename:str):
 
 if __name__ == "__main__":
     world = create_world('etl/world.txt')
-    world.loop(10000)
+    world.loop()
