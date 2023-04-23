@@ -49,8 +49,7 @@ void update_number_cars_risk_collision(int *property, int interval, roads *roads
 }
 void update_all_cars_info(vector<car> *property, int interval, roads *roads_obj) {
     while (true) {
-        // *property = roads_obj->get_all_cars_info();
-        *property = *new vector<car>;
+        *property = roads_obj->get_all_cars_info();
         this_thread::sleep_for(chrono::milliseconds(interval));
     }
 }
@@ -81,35 +80,35 @@ class dashboard{
             if (all_cars_info[i].with_external_service_info == true){
 
                 // Faz uma tabela com os dados                
-                cout << all_cars_info[i].plate << setw(8)  << left << all_cars_info[i].position
-                << setw(8)  << all_cars_info[i].speed  << setw(8) 
-                << all_cars_info[i].acceleration << setw(8)  << all_cars_info[i].model 
-                 << setw(8)  << all_cars_info[i].year  << setw(8) << all_cars_info[i].propietary  << endl;
+                cout << all_cars_info[i].plate << setw(4)
+                << all_cars_info[i].position << setw(9)
+                << all_cars_info[i].speed  << setw(9)
+                << all_cars_info[i].acceleration << setw(11)  
+                << all_cars_info[i].model << setw(9) 
+                << all_cars_info[i].year  << setw(20) 
+                << all_cars_info[i].propietary << endl;
             }
             else{
-                cout << all_cars_info[i].plate  << setw(8) <<  << setw(8) << all_cars_info[i].speed  << setw(8) 
-                << all_cars_info[i].acceleration << endl;
+                cout << all_cars_info[i].plate << setw(4)
+                << all_cars_info[i].position << setw(9) 
+                << all_cars_info[i].speed  << setw(9)
+                << all_cars_info[i].acceleration 
+                << "                                                        " << endl;
             }
         };
 
         // função para printar os dados 
         void print(){
-<<<<<<< HEAD
-            cout << "Number of roads: " << number_roads << endl;
-            cout << "Number of cars: " << number_cars << endl;
-            cout << "Number of cars over speed limit: " << number_cars_over_speed_limit << endl;
-            cout << "Number of cars at risk of collision: " << number_cars_risk_collision << endl;
-            // cout << "Plate" << setw(8)  <<  "Position" << setw(8)
-            //  <<  "Speed" << setw(20) <<  "Acceleration" << setw(20) << 
-            // "Propietary" << setw(8) <<  "Model" <<setw(8) <<  "Year" << endl;
-            // informations about cars
-=======
             cout << "Number of roads: " << BOLD << number_roads << RESET << endl;
             cout << "Number of cars: " << BOLD << number_cars << RESET << endl;
             cout << "Number of cars over speed limit: " << BOLD << number_cars_over_speed_limit << RESET << endl;
             cout << "Number of cars at risk of collision: " << BOLD << number_cars_risk_collision << RESET << endl;
+
+            // Faz uma tabela com os dados
+
+            cout << "Plate     Position     Speed     Acc     Model     Year         Proprietary" << endl;
+
             // informations about all cars
->>>>>>> 4d7c8854de29af9e9ced2cbe95eb9fa5b0964ca4
             for (int j = 0; j < all_cars_info.size(); j++){
                 if (all_cars_info[j].collision_status == 2){
                     std::cout << YELLOW;
@@ -132,8 +131,9 @@ class dashboard{
                 }
             }
             std::this_thread::sleep_for(std::chrono::milliseconds(80));
-            // cout << "\033[12A\033[12J";  
-            system("CLS")          
+            // cout << "\033[13A\033[13J";
+            cout << "\033[13A";
+            // system("CLS");     
         };
 
         // função para printar os dados quando o mock estiver desligado
