@@ -42,9 +42,18 @@ void process_file_line() {
     // faz o processamento aqui
     string car_plate = process_line.substr(0, 8);
     coords car_pos = coords(process_line.substr(9, 15));
-    roads_obj.update_car(car_plate, car_pos, process_road);
-
-    roads_obj.access_external_service(car_plate, process_road);
+    car* car_obj = roads_obj.update_car(car_plate, car_pos, process_road);
+    
+    // calcula o nível de risco
+    int risk_level = 0;
+    if (car_obj->is_over_speed_limit) {
+        risk_level += 2;
+    }
+    if (car_obj->collision_status == 1) {
+        risk_level += 4;
+    }
+    
+    roads_obj.access_external_service(car_plate, process_road, risk_level);
 }
 
 void thread_work() {
