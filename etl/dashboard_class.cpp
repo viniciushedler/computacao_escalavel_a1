@@ -80,7 +80,7 @@ class dashboard{
         void data_car(int i, vector<car> all_cars_info){
             if (all_cars_info[i].with_external_service_info == true){
                 cout << all_cars_info[i].plate << "\t"
-                << all_cars_info[i].position << "\t\t" //setw(9)
+                << all_cars_info[i].position << "  " << "\t" //setw(9)
                 << all_cars_info[i].speed  << "\t" //(9)
                 << all_cars_info[i].acceleration << "\t" //setw(11)  
                 << all_cars_info[i].model << "\t" //setw(9) 
@@ -89,10 +89,9 @@ class dashboard{
             }
             else{
                 cout << all_cars_info[i].plate << "\t"
-                << all_cars_info[i].position << "\t\t"//setw(9) 
+                << all_cars_info[i].position << "  " << "\t"//setw(9) 
                 << all_cars_info[i].speed  << "\t" //setw(9)
-                << all_cars_info[i].acceleration 
-                << "                                                        " << endl;
+                << all_cars_info[i].acceleration << endl;
             }
         };
 
@@ -105,7 +104,7 @@ class dashboard{
             cout << "Number of cars at risk of collision: " << BOLD << number_cars_risk_collision << RESET << endl;
 
             // Faz uma tabela com os dados
-            cout << "Plate\t\tPosition\tSpeed\tAcc\tModel\tYear\tProprietary" << endl;
+            cout << "Plate\tPosition\tSpeed\tAcc\tModel\tYear\tProprietary" << endl;
             // Informações dos carros
             for (int j = 0; j < all_cars_info.size(); j++){
                 if (all_cars_info[j].collision_status == 2){

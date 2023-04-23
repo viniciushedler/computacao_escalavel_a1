@@ -556,7 +556,12 @@ class World():
                 i+=1
         else:
             for i in range(cycles):
+                # debug mode, do not delete
+                # new = True
                 for road in self.roads:
+                #     if new:
+                #         print(road, end='\r')
+                #         new = False
                     road.cycle()
                     road.create_output(i)
                 os.rename(f"{output_folder}/temp{i}.txt", f"{output_folder}/{i}.txt")  # Rename file to standard name
