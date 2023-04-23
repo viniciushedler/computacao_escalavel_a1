@@ -381,7 +381,6 @@ class Road():
         # Removes the occurence of the car in the old position
         self.road[lane_o][length_o] = None
 
-
     def all_decide_movement(self):
         '''
             Calls the 'decide_movement' method of every car in the road.
@@ -405,7 +404,6 @@ class Road():
             if collision.countdown <= 0:
                 if isinstance(self.road[collision.lane][collision.length], Collision):
                     self.road[collision.lane][collision.length] = None
-
 
     def cycle(self):
         '''
@@ -484,7 +482,10 @@ class Road():
         for lane in range(self.lanes_total):
             for length in range(self.length):
                 if isinstance(self.road[lane][length], Car):
-                    output.write(f"{self.road[lane][length].plate} 00{lane},{length:03}\n")
+                    output.write(f"{self.road[lane][length].plate} {str(lane).zfill(3)},{length:03}\n")
+                elif isinstance(self.road[lane][length], Collision):
+                    for c in self.road[lane][length].collided_cars:
+                        output.write(f"{c.plate} {str(lane).zfill(3)},{length:03}\n")
         output.close()
 
     def loop(self):
@@ -508,7 +509,6 @@ class Road():
                 while command != '':
                     exec(command)
                     command = input()
-
 
     def path_is_empty(self, lane, length_start, length_end) -> tuple[bool, int]:
         '''
