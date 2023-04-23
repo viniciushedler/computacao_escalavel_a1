@@ -11,7 +11,7 @@
 // Define cores para o terminal
 #define RESET   "\033[0m"
 #define RED     "\033[31m"      /* Red */
-#define ORANGE  "\033[33m"      /* Orange */
+#define ORANGE  "\033[38;2;255;165;0m"      /* Orange */
 #define YELLOW  "\033[33m"      /* Yellow */
 #define WHITE   "\033[37m"      /* White */
 #define GREEN   "\033[32m"      /* Green */
@@ -79,7 +79,7 @@ class dashboard{
         // Função para printar os dados dos carros
         void data_car(int i, vector<car> all_cars_info){
             if (all_cars_info[i].with_external_service_info == true){
-                cout << all_cars_info[i].plate << "\t"
+                cout << all_cars_info[i].plate << "\t\t"
                 << all_cars_info[i].position << "  " << "\t" //setw(9)
                 << all_cars_info[i].speed  << "\t" //(9)
                 << all_cars_info[i].acceleration << "\t" //setw(11)  
@@ -88,7 +88,7 @@ class dashboard{
                 << all_cars_info[i].propietary << endl;
             }
             else{
-                cout << all_cars_info[i].plate << "\t"
+                cout << all_cars_info[i].plate << "\t\t"
                 << all_cars_info[i].position << "  " << "\t"//setw(9) 
                 << all_cars_info[i].speed  << "\t" //setw(9)
                 << all_cars_info[i].acceleration << endl;
@@ -97,28 +97,28 @@ class dashboard{
 
         // função para printar os dados 
         void print(){
-            cout << BOLD << GREEN << "Dashboard" << RESET << endl;
+            cout << BOLD << WHITE << "Dashboard" << RESET << endl;
             cout << "Number of roads: " << BOLD << number_roads << RESET << endl;
             cout << "Number of cars: " << BOLD << number_cars << RESET << endl;
             cout << "Number of cars over speed limit: " << BOLD << number_cars_over_speed_limit << RESET << endl;
             cout << "Number of cars at risk of collision: " << BOLD << number_cars_risk_collision << RESET << endl;
 
             // Faz uma tabela com os dados
-            cout << "Plate\tPosition\tSpeed\tAcc\tModel\tYear\tProprietary" << endl;
+            cout << "Plate\t\tPosition\tSpeed\tAcc\tModel\tYear\tProprietary" << endl;
             // Informações dos carros
             for (int j = 0; j < all_cars_info.size(); j++){
                 if (all_cars_info[j].collision_status == 2){
-                    std::cout << YELLOW;
+                    std::cout << RED;
                     data_car(j, all_cars_info);
-                    std::cout << WHITE;
+                    std::cout << RESET;
                 } else if (all_cars_info[j].collision_status == 1){
                     std::cout << ORANGE;
                     data_car(j, all_cars_info);
-                    std::cout << WHITE;
+                    std::cout << RESET;
                 } else if (all_cars_info[j].is_over_speed_limit == true){
-                    std::cout << RED;
+                    std::cout << YELLOW;
                     data_car(j, all_cars_info);
-                    std::cout << WHITE;
+                    std::cout << RESET;
                 } else{
                     data_car(j, all_cars_info);
                 }

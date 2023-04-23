@@ -90,14 +90,14 @@ class car {
     // Calcula a nova velocidade
     void calculate_speed(coords new_position) {
         // Calcula e atualiza a velocidade
-        this->speed = (this->position.y - new_position.y) / TIME_SLICE;
+        this->speed = (new_position.y - this->position.y) / TIME_SLICE;
     };
 
     // Calcula a nova aceleração
     void calculate_acceleration(coords new_position) {
         // Calcula e atualiza a aceleração
         this->acceleration =
-            (this->speed - (position.y - new_position.y)) / TIME_SLICE;
+            (((new_position.y - this->position.y) / TIME_SLICE) - this->speed) / (TIME_SLICE * 2);
     };
 };
 
