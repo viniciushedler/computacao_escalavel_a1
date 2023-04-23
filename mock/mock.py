@@ -17,7 +17,8 @@ from typing import Union
 from ansi import ANSI
 from parameters import * #pylint:disable = wildcard-import, unused-wildcard-import
 
-main_folder = "roads"
+output_folder = "roads"
+temp_folder = "temp"
 
 def model_from_plate(plate):
     '''
@@ -473,11 +474,11 @@ class Road():
 
     def create_output(self, index):
         '''
-            This function creates a file called 'output.txt' and writes the data of the road to it
+            This function creates a file called 'index.txt' and writes the data of the road to it
             This file will be extracted by the ETL process
         '''
-        os.makedirs(os.path.dirname(f"{main_folder}/{index}.txt"), exist_ok=True)
-        output = open(f"{main_folder}/{index}.txt", 'a', encoding='utf-8')
+        os.makedirs(os.path.dirname(f"{temp_folder}/{index}.txt"), exist_ok=True)
+        output = open(f"{temp_folder}/{index}.txt", 'a', encoding='utf-8')
         output.write(f"> {self.name}\n")
 
         for lane in range(self.lanes_total):
@@ -540,12 +541,22 @@ class World():
                 for road in self.roads:
                     road.cycle()
                     road.create_output(i)
+                try:
+                    os.remove(f"{output_folder}/{i}.txt") # Remove old files
+                except:
+                    pass
+                os.rename(f"{temp_folder}/{i}.txt", f"{output_folder}/{i}.txt") # Move files to output folder
                 i+=1
         else:
             for i in range(cycles):
                 for road in self.roads:
                     road.cycle()
                     road.create_output(i)
+                try:
+                    os.remove(f"{output_folder}/{i}.txt") # Remove old files
+                except:
+                    pass
+                os.rename(f"{temp_folder}/{i}.txt", f"{output_folder}/{i}.txt") # Move files to output folder
                 print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
             print(" ==== DONE ==== ")
 
@@ -563,15 +574,15 @@ def create_world(filename:str):
             lanes_f = int(attr[1])
             lanes_b = int(attr[2])
             length = 100
-            speed_limit = int(attr[3])
-            prob_of_new_car = float(attr[4])/100
-            prob_of_changing_lane = float(attr[5])/100
-            prob_of_collision = float(attr[6])/100
-            car_speed_min = int(attr[7])
-            car_speed_max = int(attr[8])
-            car_acc_min = int(attr[9])
-            car_acc_max = int(attr[10])
-            collision_fix_time = int(attr[11])
+            speed_limit = int(attr[4])
+            prob_of_new_car = float(attr[5])/100
+            prob_of_changing_lane = float(attr[6])/100
+            prob_of_collision = float(attr[7])/100
+            car_speed_min = int(attr[8])
+            car_speed_max = int(attr[9])
+            car_acc_min = int(attr[10])
+            car_acc_max = int(attr[11])
+            collision_fix_time = int(attr[12])
 
             # create road
             road = Road(name, lanes_f, lanes_b, length, speed_limit, prob_of_new_car, prob_of_changing_lane, prob_of_collision, car_speed_min, car_speed_max, car_acc_min, car_acc_max, collision_fix_time)
@@ -583,4 +594,4 @@ def create_world(filename:str):
 
 if __name__ == "__main__":
     world = create_world('etl/world.txt')
-    world.loop(10000)
+    world.loop()
