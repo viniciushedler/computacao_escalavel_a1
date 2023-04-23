@@ -8,11 +8,11 @@
 COMPUTACAO_ESCALAVEL_A1
 |
 └─── etl
-|   |   car_classes.cpp                     → (?)
-|   |   dashboard_class.cpp                 → (?)
-|   |   dashboard_with_threadschpp          → (?)
-|   |   etl.cpp                             → (?)
-|   |   external_service.cpp                → (?)
+|   |   car_classes.cpp                     → Classes auxiliares do ETL
+|   |   dashboard_class.cpp                 → Classe Dashboard
+|   |   dashboard_with_threads.cpp          → Dashboard com Threads
+|   |   etl.cpp                             → ETL
+|   |   external_service.cpp                → Serviço Externo
 |
 └─── report
 |   |   report.pdf                          → Relatório do trabalho
@@ -31,6 +31,8 @@ COMPUTACAO_ESCALAVEL_A1
 
 ### Execução
 
+A sequência de execução do trabalho é a seguinte: criação do mundo, execução do simulador e execução do ETL.
+
 Para executar o simulador, bastar estar no diretório raiz do projeto e executar o script de criação do mundo:
 
 ```bash
@@ -41,6 +43,14 @@ Após a criação do mundo, basta executar o simulador:
 
 ```bash
 python mock/mock.py
+```
+
+Por fim, a fim de executar o etl, é preciso estar dentro do diretório `etl`
+
+```bash 
+   cd etl
+   g++ etl.cpp -o etl.exe
+    ./etl.exe
 ```
 
 
