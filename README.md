@@ -74,10 +74,10 @@ Por fim, a fim de executar o etl, é preciso estar dentro do diretório `etl`
  - [X] Modelagem do Trabalho
  - [X] Mock
  - [X] ETL
- - [] Dashboard
- - [-] Relatório
- - [-] Problemas e Soluções
- - [] Conclusão
+ - [X] Dashboard
+ - [X] Relatório
+ - [X] Problemas e Soluções
+ - [X] Conclusão
 
 
 ### Integrantes
