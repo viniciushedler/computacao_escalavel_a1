@@ -17,7 +17,6 @@ COMPUTACAO_ESCALAVEL_A1
 └─── etl
 |   |   car_classes.cpp                     → Classes auxiliares do ETL
 |   |   dashboard_class.cpp                 → Classe Dashboard
-|   |   dashboard_with_threads.cpp          → Dashboard com Threads
 |   |   etl.cpp                             → ETL
 |   |   external_service.cpp                → Serviço Externo
 |
