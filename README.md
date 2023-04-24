@@ -61,9 +61,9 @@ python mock/mock.py
 Por fim, a fim de executar o etl, é preciso estar dentro do diretório `etl`
 
 ```bash 
-   cd etl
-   g++ etl.cpp -o etl.exe
-    ./etl.exe
+cd etl
+g++ etl.cpp -o etl.exe
+./etl.exe
 ```
 
 Com isso, devemos ser capazes de executar o código desenvolvido e testar seu funcionamento, assim como ver os resultados do _dashboard_ impressos no terminal.
