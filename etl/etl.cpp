@@ -145,9 +145,8 @@ int main() {
         int time2 = chrono::duration_cast<chrono::milliseconds>(end - middle).count();
         dashboard_obj.update_times(time1, time2, lines_number);
 
-        // this_thread::sleep_for(chrono::milliseconds(20));
         // Apaga o arquivo recém lido
-        // remove(file_name.c_str());
+        remove(file_name.c_str());
 
         // Incrementa o ciclo
         cycle++;
