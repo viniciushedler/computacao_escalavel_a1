@@ -68,6 +68,8 @@ g++ etl.cpp -o etl.exe
 
 Com isso, devemos ser capazes de executar o código desenvolvido e testar seu funcionamento, assim como ver os resultados do _dashboard_ impressos no terminal.
 
-Vale observar que deixamos o _mock_ gerando "apenas" mil arquivos, isso é, gerando dados de mil ciclos. Isso foi mais que o suficiente para os testes no geral, mas se for desejado podemos alterar a última linha em `world.loop(1000)` para outro número de parâmetro ou simplesmente deixar `world.loop()`, sem o parâmetro de quantos arquivos gerar no máximo, para que o mock gere os dados dos ciclos até que seu processo seja encerrado (pelo terminal - geralmente com "CTRL + C").
+O dashboard é atualizado, por padrão, a cada 10 milisegundo devido a thread em `start_dashboard()`. Esse valor pode ser modificado, caso desejar. 
+Além disso, o Dashboard apresenta apenas informações de 6 carros por ciclo, para que tivéssemos uma saída mais legível. Isso pode ser alterado no loop da função print() da classe `dashboard` (em `dashboard\_class.cpp`), removendo ou alterando a condição ($j < 6$).
 
+Vale observar que deixamos o _mock_ gerando "apenas" mil arquivos, isso é, gerando dados de mil ciclos. Isso foi mais que o suficiente para os testes no geral, mas se for desejado podemos alterar a última linha em `world.loop(1000)` para outro número de parâmetro ou simplesmente deixar `world.loop()`, sem o parâmetro de quantos arquivos gerar no máximo, para que o mock gere os dados dos ciclos até que seu processo seja encerrado (pelo terminal - geralmente com "CTRL + C").
 
