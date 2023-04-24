@@ -2,6 +2,13 @@
 
 ## Trabalho 1: Processamento de Dados de um Simulador de Rodovias
 
+### Integrantes
+ - Breno Marques Azevedo
+ - Bruno Pereira Fornaro
+ - Luis Fernando Laguardia
+ - Vanessa Berwanger Wille
+ - Vinicius Hedler
+ 
 ### Arquivos e Pastas
 
 ```
@@ -59,30 +66,6 @@ Por fim, a fim de executar o etl, é preciso estar dentro do diretório `etl`
     ./etl.exe
 ```
 
-
-### Avaliação
- - Modelagem geral do sistema.
- - Identificação e solução dos problemas de concorrência.
- - Relatório contendo a modelagem, os problemas/soluções e demais decisões de projeto.
- - Eficiência do ETL considerando as características de paralelismo e concorrência.
- - Solução para o acesso ao serviço externo legado.
- - Solução para a diferença de prioridade entre análises.
- - Projeto e implementação dos mocks.
- - Organização do projeto e qualidade do código.
- - Manual de instruções.
-### Relatório
- - [X] Modelagem do Trabalho
- - [X] Mock
- - [X] ETL
- - [X] Dashboard
- - [X] Relatório
- - [X] Problemas e Soluções
- - [X] Conclusão
+Com isso, devemos ser capazes de executar o código desenvolvido e testar seu funcionamento, assim como ver os resultados do _dashboard_ impressos no terminal.
 
 
-### Integrantes
- - Breno Marques Azevedo
- - Bruno Pereira Fornaro
- - Luis Fernando Laguardia
- - Vanessa Berwanger Wille
- - Vinicius Hedler
