@@ -28,7 +28,6 @@ COMPUTACAO_ESCALAVEL_A1
 |   |   mock.py                             → Scrip do Simulador
 |   |   parameters.py                       → Parâmetros do simulador
 |
-└─ dashboard_test.cpp                       → Teste do Dashboard
 |
 └─ world_creator.py                         → Criação do mundo
 ```
