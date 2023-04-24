@@ -82,13 +82,21 @@ class dashboard{
     int tm_number_cars_risk_collision;
     int tm_all_cars_info;
 
+    // Variáveis para o tempo de execução
+    int time1 = 0;
+    int time2 = 0;
+    int n_lines = 0;
+
     public:
+        bool is_mock_on = false;
+
         dashboard(roads *roads_obj) {
+            // Inicia as threads para atualizar as propriedades do dashboard
             thread t1(update_number_roads, &this->number_roads, &this->tm_number_roads, 1'000, roads_obj);
             thread t2(update_number_cars, &this->number_cars, &this->tm_number_cars, 1'000, roads_obj);
-            thread t3(update_number_cars_over_speed_limit, &this->number_cars_over_speed_limit, &this->tm_number_cars_over_speed_limit, 50, roads_obj);
+            thread t3(update_number_cars_over_speed_limit, &this->number_cars_over_speed_limit, &this->tm_number_cars_over_speed_limit, 20, roads_obj);
             thread t4(update_number_cars_risk_collision, &this->number_cars_risk_collision, &this->tm_number_cars_risk_collision, 10, roads_obj);
-            thread t5(update_all_cars_info, &this->all_cars_info, &this->tm_all_cars_info, 1'000, roads_obj);
+            thread t5(update_all_cars_info, &this->all_cars_info, &this->tm_all_cars_info, 500, roads_obj);
             t1.detach();
             t2.detach();
             t3.detach();
@@ -96,8 +104,15 @@ class dashboard{
             t5.detach();
         };
 
+        // Função para atualizar os tempos do dashboard
+        void update_times(int time1, int time2, int n_lines) {
+            this->time1 = time1;
+            this->time2 = time2;
+            this->n_lines = n_lines;
+        }
+
         // Função para printar os dados dos carros
-        void data_car(int i, vector<car> all_cars_info){
+        void data_car(int i, vector<car> all_cars_info) {
             if (all_cars_info[i].with_external_service_info == true){
                 cout << all_cars_info[i].plate << "\t\t"
                 << all_cars_info[i].position << "  " << "\t" 
@@ -116,8 +131,11 @@ class dashboard{
         };
 
         // Função para printar os dados 
-        void print(){
-            cout << BOLD << WHITE << "Dashboard" << RESET << endl;
+        void print() {
+            cout << BOLD << GREEN << "Dashboard" << RESET << endl;
+            cout << ITALIC << "Time to read file: " << this->time1 << 
+            "ms | Time to update data: " << this->time2 << 
+            "ms | N# of lines: " << this->n_lines << RESET << endl;
 
             // Número de estradas
             cout << "Number of roads: " << BOLD << number_roads << RESET 
@@ -137,7 +155,7 @@ class dashboard{
 
             // Faz uma tabela com os dados dos 6 primeiros carros
             cout << "\n" << ITALIC << "Updated in " << tm_all_cars_info << "ms" << RESET << endl;
-            cout << "Plate\t\tPosition\tSpeed\tAcc\tModel\tYear\tProprietary" << endl;
+            cout << BOLD << "Plate\t\tPosition\tSpeed\tAcc\tModel\tYear\tProprietary" << RESET << endl;
             for (int j = 0; (j < all_cars_info.size() && j < 6); j++){
 
                 if (all_cars_info[j].collision_status == 2){
@@ -156,7 +174,7 @@ class dashboard{
                     data_car(j, all_cars_info);
                 }
             }
-            // std::this_thread::sleep_for(std::chrono::milliseconds(80));
+            
             cout << "\033[2J\033[1;1H";
         };
 
@@ -166,7 +184,17 @@ class dashboard{
             cout << ITALIC << "- All data available were shown -" << RESET << endl;
             print();
         }
-
 };
+
+void update_dashboard(dashboard* dashboard_obj, int interval) {
+    while (true) {
+        if (dashboard_obj->is_mock_on == true) {
+            dashboard_obj->print();
+        } else {
+            dashboard_obj->print_offline();
+        }
+        this_thread::sleep_for(chrono::milliseconds(interval));
+    }
+}
 
 #endif // DASHBOARD_CLASS_CPP

@@ -9,7 +9,7 @@
 
 using namespace std;
 
-const int MAX_THREADS = 1;
+const int MAX_THREADS = 20;
 
 // objetos globais de rodovias e dashboard
 roads roads_obj;  
@@ -56,7 +56,7 @@ void process_file_line() {
         risk_level += 4;
     }
     
-    roads_obj.access_external_service(car_plate, process_road, risk_level);
+    roads_obj.access_external_service(car_plate, process_road, risk_level+1);
 }
 
 void thread_work() {
@@ -100,18 +100,30 @@ void create_roads(string file_specifics) {
     }
 }
 
+void start_dashboard() {
+    thread t(update_dashboard, &dashboard_obj, 20);
+    t.detach();
+}
+
 int main() {
-    // instanciando as rodovias
+    // instanciando as rodovias e o dashboard
     create_roads("world.txt");
+    start_dashboard();
+
     int cycle = 0;
     while (true) {
-        // Lê o arquivo
+
+        // lê o arquivo
         string file_name = "../roads/" + to_string(cycle) + ".txt";
         while(!ifstream(file_name)) {
-            dashboard_obj.print_offline();
+            dashboard_obj.is_mock_on = false;
         }
+        dashboard_obj.is_mock_on = true;
+
+        auto start = chrono::steady_clock::now();
         int lines_number = read_f(file_name);
 
+        auto middle = chrono::steady_clock::now();
         vector<thread> threads;
         // cria as threads
         for (int i = 0; i < MAX_THREADS; i++) {
@@ -123,15 +135,19 @@ int main() {
         for (int i = 0; i < MAX_THREADS; i++) {
             threads[i].join();
         }
+        auto end = chrono::steady_clock::now();
 
         // Remove os carros que não foram atualizados
         roads_obj.remove_unupdated_cars();
         
-        // Imprime o dashboard
-        dashboard_obj.print();
+        // Envia os tempos para o dashboard
+        int time1 = chrono::duration_cast<chrono::milliseconds>(middle - start).count();
+        int time2 = chrono::duration_cast<chrono::milliseconds>(end - middle).count();
+        dashboard_obj.update_times(time1, time2, lines_number);
 
+        // this_thread::sleep_for(chrono::milliseconds(20));
         // Apaga o arquivo recém lido
-        remove(file_name.c_str());
+        // remove(file_name.c_str());
 
         // Incrementa o ciclo
         cycle++;
