@@ -101,7 +101,7 @@ void create_roads(string file_specifics) {
 }
 
 void start_dashboard() {
-    thread t(update_dashboard, &dashboard_obj, 20);
+    thread t(update_dashboard, &dashboard_obj, 10);
     t.detach();
 }
 
