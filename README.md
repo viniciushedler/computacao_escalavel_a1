@@ -31,7 +31,13 @@ COMPUTACAO_ESCALAVEL_A1
 
 ### Execução
 
-A sequência de execução do trabalho é a seguinte: criação do mundo, execução do simulador e execução do ETL.
+A sequência de execução do trabalho é a seguinte: criação do mundo, execução do simulador e execução do ETL. Há uma forma simplificada de fazer tudo isso. Basta executar o script `run.py`, localizado no diretório raiz do projeto:
+
+```bash
+python run.py
+```
+
+Contudo, caso essa forma não funcione, é possível executar cada parte do trabalho separadamente.
 
 Para executar o simulador, bastar estar no diretório raiz do projeto e executar o script de criação do mundo:
 
