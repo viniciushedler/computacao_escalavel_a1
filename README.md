@@ -23,8 +23,6 @@ COMPUTACAO_ESCALAVEL_A1
 |
 └─── report
 |   |   report.pdf                          → Relatório do trabalho
-|   |   report.tex                          → Arquivo fonte do relatório
-|   |   ***(arquivos auxiliares do LaTeX)
 |
 └─── mock.py                                → Simulador de Rodovias
 |   |   ansi.py                             → Classe de cores
