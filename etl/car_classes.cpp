@@ -42,6 +42,9 @@ std::ostream& operator<<(std::ostream& os, const coords& coords) {
   return os << "(" << coords.x << ", " << coords.y << ")";
 }
 
+
+mutex roads_mutex;
+
 class car {
    public:
     // Atributos
@@ -289,78 +292,93 @@ class roads {
     roads(){};
 
     car* update_car(string plate, coords position, string road_name) {
-        // define a rodovia
-        road* curr_road = roads_list.at(road_name);
+        { lock_guard<timed_mutex> lock(external_service_mutex);
+            // define a rodovia
+            road* curr_road = roads_list.at(road_name);
 
-        // define o carro
-        if (!curr_road->has_car(plate)) {  // se o carro ainda não existe
-            return curr_road->create_car(plate, position);
-        };
+            // define o carro
+            if (!curr_road->has_car(plate)) {  // se o carro ainda não existe
+                return curr_road->create_car(plate, position);
+            };
 
-        // atualiza a posição do carro
-        return curr_road->update_car(plate, position, &external_service_mutex, external_service_obj);
+            // atualiza a posição do carro
+            return curr_road->update_car(plate, position, &external_service_mutex, external_service_obj);
+        }
     }
 
     // Retorna a quatidade de rodovias
-    int get_roads_count() { return roads_list.size(); };
+    int get_roads_count() { 
+        return roads_list.size(); };
 
     // Retorna o número de carros das rodovias (soma de todos os carros)
     int get_cars_count() {
-        int cars_count = 0;
-        for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
-             ++curr_road) {
-            cars_count += curr_road->second->get_cars_count();
+        { lock_guard<mutex> lock(roads_mutex); 
+            int cars_count = 0;
+            for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
+                ++curr_road) {
+                cars_count += curr_road->second->get_cars_count();
+            }
+            return cars_count;
         }
-        return cars_count;
     };
 
     // Retorna o número de veículos acima do limite de velocidade (soma de todos
     // os carros acima do limite)
     int get_speeding_cars_count() {
-        int speeding_cars_count = 0;
-        for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
-             ++curr_road) {
-            speeding_cars_count += curr_road->second->get_speeding_cars_count();
+        { lock_guard<mutex> lock(roads_mutex); 
+            int speeding_cars_count = 0;
+            for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
+                ++curr_road) {
+                speeding_cars_count += curr_road->second->get_speeding_cars_count();
+            }
+            return speeding_cars_count;
         }
-        return speeding_cars_count;
     };
 
     // Retorna a quantidade de veículos em risco de colisão (soma de todos os
     // carros em risco de colisão)
     int get_collision_risk_cars_count() {
-        int collision_risk_cars_count = 0;
-        for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
-             ++curr_road) {
-            collision_risk_cars_count +=
-                curr_road->second->get_collision_risk_cars_count();
+        { lock_guard<mutex> lock(roads_mutex);  
+            int collision_risk_cars_count = 0;
+            for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
+                ++curr_road) {
+                collision_risk_cars_count +=
+                    curr_road->second->get_collision_risk_cars_count();
+            }
+            return collision_risk_cars_count;
         }
-        return collision_risk_cars_count;
     };
 
     // Remove carros que não foram atualizados
     void remove_unupdated_cars() {
-        for (auto curr_road = roads_list.begin(); curr_road != roads_list.end(); ++curr_road) {
+        { lock_guard<mutex> lock(roads_mutex); 
+            for (auto curr_road = roads_list.begin(); curr_road != roads_list.end(); ++curr_road) {
             curr_road->second->remove_unupdated_cars();
         }
+        };
     };
 
     // Retorna todas as informações dos carros de todas as rodovias
     vector<car> get_all_cars_info() {
-        vector<car> all_cars_info;
-        for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
-             ++curr_road) {
-            for (auto curr_car = curr_road->second->cars.begin();
-                 curr_car != curr_road->second->cars.end(); ++curr_car) {
-                all_cars_info.push_back(*curr_car->second);
+        { lock_guard<mutex> lock(roads_mutex); 
+            vector<car> all_cars_info;
+            for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
+                ++curr_road) {
+                for (auto curr_car = curr_road->second->cars.begin();
+                    curr_car != curr_road->second->cars.end(); ++curr_car) {
+                    all_cars_info.push_back(*curr_car->second);
+                }
             }
+            return all_cars_info;
         }
-        return all_cars_info;
     };
 
     // Acessa o serviço externo
     void access_external_service(string plate, string road_name, int tries) {
-        roads_list.at(road_name)->access_external_service(
-            plate, &external_service_mutex, external_service_obj);
+        { lock_guard<timed_mutex> lock(external_service_mutex);
+            roads_list.at(road_name)->access_external_service(
+                plate, &external_service_mutex, external_service_obj, tries);
+        }
     };
 
     // Cria uma rodovia segundo as especificações
