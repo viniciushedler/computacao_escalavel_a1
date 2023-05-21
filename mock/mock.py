@@ -10,7 +10,7 @@
 
 import random
 import string
-import secrets
+import datetime
 import os
 import time
 from typing import Union
@@ -478,6 +478,8 @@ class Road():
         os.makedirs(os.path.dirname(f"{output_folder}/temp{index}.txt"), exist_ok=True)
         output = open(f"{output_folder}/temp{index}.txt", 'a', encoding='utf-8')
         output.write(f"> {self.name}\n")
+        output.write(f"> {datetime.datetime.now().timestamp()}\n")
+        output.write(f"> {index}\n")
 
         for lane in range(self.lanes_f):
             for length in range(self.length):
@@ -539,65 +541,79 @@ class Road():
         return True, l
 
 class World():
-    roads = []
+    #roads = []
+    road = None
 
     def add_road(self, road:Road):
-        self.roads.append(road)
+        #self.roads.append(road)
+        self.road = road
     
     def loop(self, cycles:int=None):
         i= 0
         if cycles is None:
             while True:
-                for road in self.roads:
-                    road.cycle()
-                    road.create_output(i)
+                self.road.cycle()
+                self.road.create_output(i)
                 os.rename(f"{output_folder}/temp{i}.txt", f"{output_folder}/{i}.txt")  # Rename file to standard name
                 print(f"Cycle {i} done", end='\r')
                 i+=1
         else:
             for i in range(cycles):
+                self.road.cycle()
+                self.road.create_output(i)
+                os.rename(f"{output_folder}/temp{i}.txt", f"{output_folder}/{i}.txt")  # Rename file to standard name
+                print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
                 # debug mode, do not delete
                 # new = True
-                for road in self.roads:
+                #for road in self.roads:
                 #     if new:
                 #         print(road, end='\r')
                 #         new = False
-                    road.cycle()
-                    road.create_output(i)
-                os.rename(f"{output_folder}/temp{i}.txt", f"{output_folder}/{i}.txt")  # Rename file to standard name
-                print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
+                    #road.cycle()
+                    #road.create_output(i)
             print(" ==== DONE ==== ")
 
 def create_world(filename:str):
     '''
-        Creates a world from a file
+        Creates a world from a file.
     '''
     world = World()
+    num_lines = sum(1 for _ in open(filename))
+
+    road = input(f"Which road do you want to simulate? [0 - {num_lines-1}]: ")
+
+    try:
+        road = int(road)
+        assert road >= 0 and road < num_lines, "Index out of range"
+
+    except ValueError:
+        print("Invalid input")
+        return
 
     with open(filename, 'r', encoding='utf-8') as file:
-        for line in file:
-            # define road attributes
-            attr = line.split(' ')
-            name = attr[0]
-            lanes_f = int(attr[1])
-            lanes_b = int(attr[2])
-            length = int(attr[3])
-            speed_limit = int(attr[4])
-            prob_of_new_car = float(attr[5])/100
-            prob_of_changing_lane = float(attr[6])/100
-            prob_of_collision = float(attr[7])/100
-            car_speed_min = int(attr[8])
-            car_speed_max = int(attr[9])
-            car_acc_min = int(attr[10])
-            car_acc_max = int(attr[11])
-            collision_fix_time = int(attr[12])
+        for i, line in enumerate(file):
+            if i == road:
+                attr = line.split(' ')
+                name = attr[0]
+                lanes_f = int(attr[1])
+                lanes_b = int(attr[2])
+                length = int(attr[3])
+                speed_limit = int(attr[4])
+                prob_of_new_car = float(attr[5])/100
+                prob_of_changing_lane = float(attr[6])/100
+                prob_of_collision = float(attr[7])/100
+                car_speed_min = int(attr[8])
+                car_speed_max = int(attr[9])
+                car_acc_min = int(attr[10])
+                car_acc_max = int(attr[11])
+                collision_fix_time = int(attr[12])
 
-            # create road
-            road = Road(name, lanes_f, lanes_b, length, speed_limit, prob_of_new_car, prob_of_changing_lane, prob_of_collision, car_speed_min, car_speed_max, car_acc_min, car_acc_max, collision_fix_time)
+                # create road
+                road = Road(name, lanes_f, lanes_b, length, speed_limit, prob_of_new_car, prob_of_changing_lane, prob_of_collision, car_speed_min, car_speed_max, car_acc_min, car_acc_max, collision_fix_time)
 
-            # add road to world
-            world.add_road(road)
-
+                # add road to world
+                world.add_road(road)
+                break   
     return world
 
 def empty_roads_dir():
