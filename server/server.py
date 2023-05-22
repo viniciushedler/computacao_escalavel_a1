@@ -17,11 +17,10 @@ class HighwaySenderServicer(highway_pb2_grpc.HighwaySenderServicer):
         return reply
 
     def deal_with_message(self, message_data):
-        
         r = redis.Redis(host='localhost', port=6379, db=0)
 
-        key = message_data[0:10]  # first 10 characters of the message
-        message = message_data[10:]  # rest of the message
+        key = message_data[0:8]  # first 8 characters of the message
+        message = message_data[8:]  # rest of the message
 
         r.set(key, message)
 
