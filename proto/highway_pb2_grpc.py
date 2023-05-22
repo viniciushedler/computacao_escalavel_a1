@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import teste_pb2 as teste__pb2
+import highway_pb2 as highway__pb2
 
 
 class HighwaySenderStub(object):
@@ -17,8 +17,8 @@ class HighwaySenderStub(object):
         """
         self.SendHighway = channel.unary_unary(
                 '/greet.HighwaySender/SendHighway',
-                request_serializer=teste__pb2.HighwayRequest.SerializeToString,
-                response_deserializer=teste__pb2.Reply.FromString,
+                request_serializer=highway__pb2.HighwayRequest.SerializeToString,
+                response_deserializer=highway__pb2.Reply.FromString,
                 )
 
 
@@ -38,8 +38,8 @@ def add_HighwaySenderServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SendHighway': grpc.unary_unary_rpc_method_handler(
                     servicer.SendHighway,
-                    request_deserializer=teste__pb2.HighwayRequest.FromString,
-                    response_serializer=teste__pb2.Reply.SerializeToString,
+                    request_deserializer=highway__pb2.HighwayRequest.FromString,
+                    response_serializer=highway__pb2.Reply.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -64,7 +64,7 @@ class HighwaySender(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/greet.HighwaySender/SendHighway',
-            teste__pb2.HighwayRequest.SerializeToString,
-            teste__pb2.Reply.FromString,
+            highway__pb2.HighwayRequest.SerializeToString,
+            highway__pb2.Reply.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

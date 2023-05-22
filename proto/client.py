@@ -1,15 +1,15 @@
-import teste_pb2_grpc
-import teste_pb2
+import highway_pb2_grpc
+import highway_pb2
 import time
 import grpc
 
 def run():
     with grpc.insecure_channel('localhost:50051') as channel:
-        stub = teste_pb2_grpc.HighwaySenderStub(channel)
+        stub = highway_pb2_grpc.HighwaySenderStub(channel)
 
         text = input("Qual a mensagem a passar? ")
 
-        highway_request = teste_pb2.HighwayRequest(data = text)
+        highway_request = highway_pb2.HighwayRequest(data = text)
         reply = stub.SendHighway(highway_request)
         print("SendHighway Response Received:")
         print(reply)
@@ -23,7 +23,7 @@ def send_message(message_data):
 
     with grpc.insecure_channel('localhost:50051') as channel:
         
-        stub = teste_pb2_grpc.HighwaySenderStub(channel)
+        stub = highway_pb2_grpc.HighwaySenderStub(channel)
 
         highway_request = teste_pb2.HighwayRequest(data = message_data)
         reply = stub.SendHighway(highway_request)
