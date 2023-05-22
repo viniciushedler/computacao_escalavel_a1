@@ -27,7 +27,7 @@ mutex curr_road_mutex;
 int doc_line = 0;
 
 // Banco de dados
-auto bd = Redis("tcp://INSIRA-O-NÚMERO-DO-IP-CERTO-PFV");
+auto bd = Redis("tcp://127.0.0.1:6379");
 
 void process_file_line(string road_name, vector<string>* cars_data, mutex* cars_data_mutex, int* data_line, int new_date) {
     // variáveis que ficarão na operação depois de abrir o mutex
@@ -83,7 +83,7 @@ void road_work() {
         }
 
         // lê o arquivo
-        string file_name = "" + road_name + to_string(cycle);
+        string file_name = "" + road_name + " " + to_string(cycle);
 
         // lê o arquivo
         vector<string>* cars_data;
