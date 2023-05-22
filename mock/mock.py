@@ -12,13 +12,34 @@ import random
 import string
 import datetime
 import os
-import time
 from typing import Union
 from ansi import ANSI
-from parameters import * #pylint:disable = wildcard-import, unused-wildcard-import
+from parameters import *  #pylint:disable = wildcard-import, unused-wildcard-import
+
+import highway_pb2_grpc
+import highway_pb2
+import grpc
+
+def send_message(message_data):
+
+    with grpc.insecure_channel('localhost:50051') as channel:
+        
+        stub = highway_pb2_grpc.HighwaySenderStub(channel)
+
+        highway_request = highway_pb2.HighwayRequest(data = message_data)
+        reply = stub.SendHighway(highway_request)
 
 output_folder = "roads"
 temp_folder = "temp"
+
+class Output():
+    message = ""
+
+    def __init__(self) -> None:
+        self.message = ""
+    
+    def write(self, text):
+        self.message += text
 
 def model_from_plate(plate):
     '''
@@ -475,8 +496,8 @@ class Road():
             This function creates a file called 'index.txt' and writes the data of the road to it
             This file will be extracted by the ETL process
         '''
-        os.makedirs(os.path.dirname(f"{output_folder}/temp{index}.txt"), exist_ok=True)
-        output = open(f"{output_folder}/temp{index}.txt", 'a', encoding='utf-8')
+        output = Output()
+        output.write(f"{self.name} {index}\n")
         output.write(f"> {self.name}\n")
         output.write(f"> {datetime.datetime.now().timestamp()}\n")
         output.write(f"> {index}\n")
@@ -497,7 +518,8 @@ class Road():
                 elif isinstance(self.road[lane][length], Collision):
                     for c in self.road[lane][length].collided_cars:
                         output.write(f"{c.plate} {str(lane).zfill(3)},{i_length:03}\n")
-        output.close()
+        
+        send_message(output.message)
 
     def loop(self):
         '''
@@ -561,7 +583,6 @@ class World():
             for i in range(cycles):
                 self.road.cycle()
                 self.road.create_output(i)
-                os.rename(f"{output_folder}/temp{i}.txt", f"{output_folder}/{i}.txt")  # Rename file to standard name
                 print(f"Cycle {i} done", (1+(i%3))*".", (3-(i%3))*" ", end='\r')
                 # debug mode, do not delete
                 # new = True
@@ -582,13 +603,9 @@ def create_world(filename:str):
 
     road = input(f"Which road do you want to simulate? [0 - {num_lines-1}]: ")
 
-    try:
-        road = int(road)
-        assert road >= 0 and road < num_lines, "Index out of range"
-
-    except ValueError:
-        print("Invalid input")
-        return
+    assert road.isnumeric(), "Index must be a number"
+    road = int(road)
+    assert road >= 0 and road < num_lines, "Index out of range"
 
     with open(filename, 'r', encoding='utf-8') as file:
         for i, line in enumerate(file):
@@ -629,4 +646,4 @@ def empty_roads_dir():
 if __name__ == "__main__":
     empty_roads_dir()
     world = create_world('etl/world.txt')
-    world.loop(1000)
+    world.loop(10)
