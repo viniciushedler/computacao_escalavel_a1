@@ -71,6 +71,23 @@ void cars_work(string road_name, vector<string>* cars_data, int new_date) {
     }
 }
 
+
+int read_query(string key, vector<string>* values) {
+    string line;
+    auto data = bd.get(key);
+    stringstream file;
+    file << *data;
+    while (getline(file, line, '\n')) {
+        values->push_back(line);
+    }
+    // Converte o unix timestamp em string para um inteiro
+    string timestamp = (*values)[0];
+    int new_date = stoi(timestamp);
+    // Remove o timestamp da lista
+    values->erase(values->begin());
+    return new_date;
+}
+
 void road_work() {
     int cycle = 0;
     string road_name;
@@ -122,19 +139,6 @@ void road_work() {
     }
 }
 
-int read_query(string key, vector<string>* values) {
-    string line;
-    stringstream file = bd.get(key);
-    while (getline(file, line, '\n')) {
-        values->push_back(line);
-    }
-    // Converte o unix timestamp em string para um inteiro
-    string timestamp = (*values)[0];
-    int new_date = stoi(timestamp);
-    // Remove o timestamp da lista
-    values->erase(values->begin());
-    return new_date;
-}
 
 int read_f(string file_name) {
     ifstream file(file_name);
