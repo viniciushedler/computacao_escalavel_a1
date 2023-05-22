@@ -10,3 +10,4 @@ roads/**
 temp/**
 etl/dashboard_with_threads
 delete_roads
+proto_tests/
