@@ -26,47 +26,37 @@ using namespace std;
 // Funções de atualização das propriedades do dashboard
 void update_number_roads(int *property, int *tm, int interval, roads *roads_obj) {
     while (true) {
-        auto start = chrono::steady_clock::now();
-        *property = roads_obj->get_roads_count();
+        *property = roads_obj->number_of_roads;
+        *tm = roads_obj->time_to_number_of_roads;
         this_thread::sleep_for(chrono::milliseconds(interval));
-        auto end = chrono::steady_clock::now();
-        *tm = chrono::duration_cast<chrono::milliseconds>(end - start).count();
     }
 }
 void update_number_cars(int *property, int *tm, int interval, roads *roads_obj) {
     while (true) {
-        auto start = chrono::steady_clock::now();
-        *property = roads_obj->get_cars_count();
+        *property = roads_obj->number_of_cars;
+        *tm = roads_obj->time_to_number_of_cars;
         this_thread::sleep_for(chrono::milliseconds(interval));
-        auto end = chrono::steady_clock::now();
-        *tm = chrono::duration_cast<chrono::milliseconds>(end - start).count();
     }
 }
 void update_number_cars_over_speed_limit(int *property, int *tm, int interval, roads *roads_obj) {
     while (true) {
-        auto start = chrono::steady_clock::now();
-        *property = roads_obj->get_speeding_cars_count();
+        *property = roads_obj->number_of_cars_over_speed_limit;
+        *tm = roads_obj->time_to_number_of_cars_over_speed_limit;
         this_thread::sleep_for(chrono::milliseconds(interval));
-        auto end = chrono::steady_clock::now();
-        *tm = chrono::duration_cast<chrono::milliseconds>(end - start).count();
     }
 }
 void update_number_cars_risk_collision(int *property, int *tm, int interval, roads *roads_obj) {
     while (true) {
-        auto start = chrono::steady_clock::now();
-        *property = roads_obj->get_collision_risk_cars_count();
+        *property = roads_obj->number_of_cars_with_collision_risk;
+        *tm = roads_obj->time_to_number_of_cars_with_collision_risk;
         this_thread::sleep_for(chrono::milliseconds(interval));
-        auto end = chrono::steady_clock::now();
-        *tm = chrono::duration_cast<chrono::milliseconds>(end - start).count();
     }
 }
 void update_all_cars_info(vector<car> *property, int *tm, int interval, roads *roads_obj) {
     while (true) {
-        auto start = chrono::steady_clock::now();
-        *property = roads_obj->get_all_cars_info();
+        *property = roads_obj->all_cars_info;
+        *tm = roads_obj->time_to_all_cars_info;
         this_thread::sleep_for(chrono::milliseconds(interval));
-        auto end = chrono::steady_clock::now();
-        *tm = chrono::duration_cast<chrono::milliseconds>(end - start).count();
     }
 }
 
@@ -85,6 +75,7 @@ class dashboard{
     // Variáveis para o tempo de execução
     int time1 = 0;
     int time2 = 0;
+    int time3 = 0;
     int n_lines = 0;
 
     public:
@@ -108,6 +99,7 @@ class dashboard{
         void update_times(int time1, int time2, int n_lines) {
             this->time1 = time1;
             this->time2 = time2;
+            this->time3 = time3;    
             this->n_lines = n_lines;
         }
 
@@ -133,9 +125,11 @@ class dashboard{
         // Função para printar os dados 
         void print() {
             cout << BOLD << GREEN << "Dashboard" << RESET << endl;
-            cout << ITALIC << "Time to read file: " << this->time1 << 
-            "ms | Time to update data: " << this->time2 << 
-            "ms | N# of lines: " << this->n_lines << RESET << endl;
+            // cout << ITALIC << "Time to read file: " << this->time1 << 
+            // "ms | Time to update data: " << this->time2 << 
+            // "ms | Time to since emited data: " << this->time3 << 
+            // "ms | N# of lines: " << this->n_lines << RESET << endl;
+            cout << "N# of lines: " << this->n_lines << RESET << endl;
 
             // Número de estradas
             cout << "Number of roads: " << BOLD << number_roads << RESET 
