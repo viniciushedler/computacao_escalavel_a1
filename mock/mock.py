@@ -497,7 +497,7 @@ class Road():
             This file will be extracted by the ETL process
         '''
         output = Output()
-        output.write(f"{self.name} {index}\n")
+        output.write(f"{self.name} {index}$")
         output.write(f"> {self.name}\n")
         output.write(f"> {datetime.datetime.now().timestamp()}\n")
         output.write(f"> {index}\n")
