@@ -25,7 +25,7 @@ def send_message(message_data):
         
         stub = highway_pb2_grpc.HighwaySenderStub(channel)
 
-        highway_request = teste_pb2.HighwayRequest(data = message_data)
+        highway_request = highway_pb2.HighwayRequest(data = message_data)
         reply = stub.SendHighway(highway_request)
 
 
