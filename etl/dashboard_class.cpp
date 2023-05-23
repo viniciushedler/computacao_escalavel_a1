@@ -108,8 +108,8 @@ class dashboard{
             if (all_cars_info[i].with_external_service_info == true){
                 cout << all_cars_info[i].plate << "\t\t"
                 << all_cars_info[i].position << "  " << "\t" 
-                << all_cars_info[i].speed  << "\t" 
-                << all_cars_info[i].acceleration << "\t"   
+                << round(all_cars_info[i].speed)  << "\t" 
+                << round(all_cars_info[i].acceleration) << "\t"   
                 << all_cars_info[i].model << "\t"  
                 << all_cars_info[i].year  << "\t" 
                 << all_cars_info[i].propietary << endl;

@@ -19,6 +19,7 @@ from parameters import *  #pylint:disable = wildcard-import, unused-wildcard-imp
 import highway_pb2_grpc
 import highway_pb2
 import grpc
+import sys
 
 def send_message(message_data):
 
@@ -601,7 +602,10 @@ def create_world(filename:str):
     world = World()
     num_lines = sum(1 for _ in open(filename))
 
-    road = input(f"Which road do you want to simulate? [0 - {num_lines-1}]: ")
+    if not sys.argv[1].isnumeric():
+        road = input(f"Which road do you want to simulate? [0 - {num_lines-1}]: ")
+    else:
+        road = sys.argv[1]
 
     assert road.isnumeric(), "Index must be a number"
     road = int(road)
@@ -646,4 +650,4 @@ def empty_roads_dir():
 if __name__ == "__main__":
     empty_roads_dir()
     world = create_world('etl/world.txt')
-    world.loop(1000)
+    world.loop(10000)

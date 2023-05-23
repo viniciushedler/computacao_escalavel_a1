@@ -1,7 +1,7 @@
 import random
 
 if __name__ == "__main__":
-    roads_number = 15
+    roads_number = 50
     lanes_number_range = [1, 3]
     length_range = [100, 1000]
     max_speed_range = [12, 24]

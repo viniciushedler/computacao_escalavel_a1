@@ -117,7 +117,8 @@ class car {
     // Calcula a nova velocidade
     void calculate_speed(coords new_position, long long int new_date) {
         // Variação do tempo desde a última atualização
-        float time_delta = (new_date - this->last_update) / 1000.0;
+        float time_delta = (new_date - this->last_update) / 1000.0 
+            + 0.000001; // Adiciona um número pequeno para não dividir por 0
         // Calcula e atualiza a velocidade
         this->speed = (new_position.y - this->position.y) / time_delta;
         // Atualiza o tempo até calcular a velocidade
@@ -127,7 +128,8 @@ class car {
     // Calcula a nova aceleração
     void calculate_acceleration(coords new_position, long long int new_date) {
         // Variação do tempo desde a última atualização
-        float time_delta = (new_date - this->last_update) / 1000.0;
+        float time_delta = (new_date - this->last_update) / 1000.0 
+        + 0.000001; // Adiciona um número pequeno para não dividir por 0
         // Calcula e atualiza a aceleração
         this->acceleration =
             (((new_position.y - this->position.y) / time_delta) - this->speed) / (time_delta * 2);
