@@ -23,7 +23,7 @@ import sys
 
 def send_message(message_data):
 
-    with grpc.insecure_channel('localhost:50051') as channel:
+    with grpc.insecure_channel('0.0.0.0:50051') as channel:
         
         stub = highway_pb2_grpc.HighwaySenderStub(channel)
 
