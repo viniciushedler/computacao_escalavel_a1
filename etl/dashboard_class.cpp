@@ -147,10 +147,15 @@ class dashboard{
             cout << "Number of cars at risk of collision: " << BOLD << number_cars_risk_collision << RESET 
             << "\t\t" << ITALIC << "Updated in " << tm_number_cars_risk_collision << "ms" << RESET << endl;
 
+            // cout << "AQUI" << endl; // APAGAR
+
             // Faz uma tabela com os dados dos 6 primeiros carros
             cout << "\n" << ITALIC << "Updated in " << tm_all_cars_info << "ms" << RESET << endl;
             cout << BOLD << "Plate\t\tPosition\tSpeed\tAcc\tModel\tYear\tProprietary" << RESET << endl;
+            // cout << "Tamanho da lista de carros:" << all_cars_info.size() << endl; // APAGAR
+            // cout << "AQUI" << endl; // APAGAR
             for (int j = 0; (j < all_cars_info.size() && j < 6); j++){
+                // cout << "AQUI" << endl; // APAGAR
 
                 if (all_cars_info[j].collision_status == 2){
                     std::cout << RED;
@@ -168,6 +173,7 @@ class dashboard{
                     data_car(j, all_cars_info);
                 }
             }
+            // cout << "AQUI" << endl; // APAGAR
             
             cout << "\033[2J\033[1;1H";
         };

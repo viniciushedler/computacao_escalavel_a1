@@ -498,9 +498,9 @@ class Road():
         '''
         output = Output()
         output.write(f"{self.name} {index}$")
-        output.write(f"> {self.name}\n")
-        output.write(f"> {datetime.datetime.now().timestamp()}\n")
-        output.write(f"> {index}\n")
+        # output.write(f"> {self.name}\n")
+        output.write(f"{int(datetime.datetime.now().timestamp() * 1000)}\n")
+        # output.write(f"> {index}\n")
 
         for lane in range(self.lanes_f):
             for length in range(self.length):
