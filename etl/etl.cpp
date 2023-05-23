@@ -29,6 +29,13 @@ long long int doc_line = 0;
 // Banco de dados
 auto bd = Redis("tcp://127.0.0.1:6379");
 
+void add_to_log_file(long long int time_diff) {
+    ofstream file;
+    file.open("log.txt", ios::app);
+    file << time_diff << endl;
+    file.close();
+}
+
 void process_file_line(string road_name, vector<string>* cars_data, mutex* cars_data_mutex, long long int* data_line, long long int new_date) {
     // variáveis que ficarão na operação depois de abrir o mutex
     string process_line;
@@ -75,10 +82,6 @@ void cars_work(string road_name, vector<string>* cars_data, long long int new_da
 long long int read_query(string key, vector<string>* values) {
     string line;
     auto data = bd.get(key);
-
-    if (key == "BR-100 0") { 
-        cout << endl;
-    }
 
     stringstream file;
     // cout << "Leitura: " << *data << "<FIM DA LEITURA>" << endl; // APAGAR (mas esse aqui é legal)
@@ -174,6 +177,13 @@ void road_work() {
 
         // Atualiza a variável com as informações dos carros
         roads_obj.update_all_cars_info(new_date);
+
+        // Pega o momento atual em unix time
+        long long int curr_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+        // Calcula a diferença entre o momento atual e o momento em que o arquivo foi criado
+        long long int time_diff = curr_time - new_date;
+        // Adiciona para o arquivo de log essa diferença
+        add_to_log_file(time_diff);
 
         cycle++;
     }
