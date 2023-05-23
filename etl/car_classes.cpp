@@ -13,24 +13,24 @@
 using namespace std;
 
 // const float TIME_SLICE = 0.1;
-const int EXTERNAL_SERVICE_MAX_QUEUE_SIZE = 50;
+const long long int EXTERNAL_SERVICE_MAX_QUEUE_SIZE = 50;
 #define SAFE 0
 #define WARNING 1
 #define COLIDED 2
 
 // Função que retorna o tempo atual em milisegundos (unix timestamp)
-int get_current_time() {
+long long int get_current_time() {
     return chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
 }
 
 // define uma estrutura de coordenadas
 struct coords {
-    int x;
-    int y;
+    long long int x;
+    long long int y;
 
     coords(){};
 
-    coords(int x, int y) {
+    coords(long long int x, long long int y) {
         this->x = x;
         this->y = y;
     };
@@ -58,7 +58,7 @@ class car {
     float speed;
     float acceleration;
     bool updated;
-    int collision_status;
+    long long int collision_status;
     bool is_over_speed_limit;
 
     // Atributos do sistema externo
@@ -68,23 +68,23 @@ class car {
     string year;
 
     // Hora que o carro entrou na simulação
-    int creation_time;
+    long long int creation_time;
 
     // Hora da última atualização (leitura de arquivo)
-    int last_update;
+    long long int last_update;
 
     // Variáveis com os tempos até o término de cada análise
-    int time_to_position_analysis;
-    int time_to_speed_analysis;
-    int time_to_acceleration_analysis;
-    int time_to_external_service_analysis;
-    int time_to_over_speed_limit_analysis;
-    int time_to_collision_analysis;
+    long long int time_to_position_analysis;
+    long long int time_to_speed_analysis;
+    long long int time_to_acceleration_analysis;
+    long long int time_to_external_service_analysis;
+    long long int time_to_over_speed_limit_analysis;
+    long long int time_to_collision_analysis;
 
     car(){};
 
     // Construtor
-    car(string plate, coords position, int new_date) {
+    car(string plate, coords position, long long int new_date) {
         this->plate = plate;
         this->position = position;
         this->speed = 0.0;
@@ -95,7 +95,7 @@ class car {
     };
 
     // Atualiza a posição do carro (e calcula a aceleração e velocidade)
-    void update_position(coords new_position, int new_date) {
+    void update_position(coords new_position, long long int new_date) {
         this->calculate_acceleration(new_position, new_date);
         this->calculate_speed(new_position, new_date);
         this->position = new_position;
@@ -115,7 +115,7 @@ class car {
 
    private:
     // Calcula a nova velocidade
-    void calculate_speed(coords new_position, int new_date) {
+    void calculate_speed(coords new_position, long long int new_date) {
         // Variação do tempo desde a última atualização
         float time_delta = (new_date - this->last_update) / 1000.0;
         // Calcula e atualiza a velocidade
@@ -125,7 +125,7 @@ class car {
     };
 
     // Calcula a nova aceleração
-    void calculate_acceleration(coords new_position, int new_date) {
+    void calculate_acceleration(coords new_position, long long int new_date) {
         // Variação do tempo desde a última atualização
         float time_delta = (new_date - this->last_update) / 1000.0;
         // Calcula e atualiza a aceleração
@@ -138,23 +138,23 @@ class car {
 
 class road {
    public:
-    int length;
-    int width;
-    int speed_limit;
+    long long int length;
+    long long int width;
+    long long int speed_limit;
     mutex cars_mutex;
     unordered_map<string, car*> cars;
     unordered_map<int, unordered_map<int, unordered_map<string, car*>>>
         road_matrix;
-    const int SECURE_TIME_DISTANCE =
+    const long long int SECURE_TIME_DISTANCE =
         2;  // Distância segura: 2 segundos de "distância"
     
-    int number_of_cars_over_speed_limit = 0;
-    int number_of_cars_with_collision_risk = 0;
+    long long int number_of_cars_over_speed_limit = 0;
+    long long int number_of_cars_with_collision_risk = 0;
 
     road(){};
 
     // Construtor
-    road(int length, int width, int speed_limit) {
+    road(long long int length, long long int width, long long int speed_limit) {
         this->length = length;
         this->width = width;
         this->speed_limit = speed_limit;
@@ -169,7 +169,7 @@ class road {
     };
 
     // Cria um carro com a placa especificada
-    car* create_car(string plate, coords position, int new_date) {
+    car* create_car(string plate, coords position, long long int new_date) {
         car* new_car = new car(plate, position, new_date);
         cars.insert(pair<string, car*>(plate, new_car));
         road_matrix[position.x][position.y][plate] = new_car;
@@ -180,11 +180,11 @@ class road {
     car* find_car(string plate) { return cars.at(plate); };
 
     // Retorna a quantidade de carros
-    int get_cars_count() { return cars.size(); };
+    long long int get_cars_count() { return cars.size(); };
 
     // Retorna a quantidade de carros acima do limite de velocidade
-    int get_speeding_cars_count() {
-        int speeding_cars_count = 0;
+    long long int get_speeding_cars_count() {
+        long long int speeding_cars_count = 0;
         for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
             if (abs(curr_car->second->speed) > this->speed_limit) {
                 speeding_cars_count++;
@@ -201,11 +201,11 @@ class road {
     // Verifica se um carro está em risco de colisão
     bool is_car_in_collision_risk(string plate) {
         car* curr_car = cars.at(plate);
-        int limit_of_range =
+        long long int limit_of_range =
             curr_car->position.y + curr_car->speed * this->SECURE_TIME_DISTANCE;
         limit_of_range =
             limit_of_range > this->length ? this->length : limit_of_range;
-        for (int y = curr_car->position.y - 1; y <= curr_car->position.y + 1;
+        for (long long int y = curr_car->position.y - 1; y <= curr_car->position.y + 1;
              y++) {
             if (road_matrix[curr_car->position.x][y].size() > 1) {
                 return true;
@@ -215,8 +215,8 @@ class road {
     };
 
     // Retorna a quantidade de carros com risco de colisão
-    int get_collision_risk_cars_count() {
-        int collision_risk_cars_count = 0;
+    long long int get_collision_risk_cars_count() {
+        long long int collision_risk_cars_count = 0;
         { lock_guard<mutex> lock(cars_mutex);
             for (auto curr_car = cars.begin(); curr_car != cars.end(); ++curr_car) {
                 if (curr_car->second && is_car_in_collision_risk(curr_car->first)) {
@@ -228,7 +228,7 @@ class road {
     };
 
     // Atualiza a posição do carro com a placa especificada
-    car* update_car(string plate, coords new_position, timed_mutex* external_mutex, external_service* external_service_obj, int new_date) {
+    car* update_car(string plate, coords new_position, timed_mutex* external_mutex, external_service* external_service_obj, long long int new_date) {
         car* curr_car = cars.at(plate);
         road_matrix[curr_car->position.x][curr_car->position.y].erase(
             plate);  // remove o carro da matriz
@@ -264,7 +264,7 @@ class road {
     };
 
     // Verifica o status de um carro
-    int get_car_status(string plate, timed_mutex* external_mutex, external_service* external_service_obj) {
+    long long int get_car_status(string plate, timed_mutex* external_mutex, external_service* external_service_obj) {
         car* curr_car = cars.at(plate);
         if (road_matrix[curr_car->position.x][curr_car->position.y].size() >
             1) {
@@ -278,9 +278,9 @@ class road {
     };
 
     // Função para passar para a thread acessar o serviço externo
-    void thread_acess_external_service(string plate, timed_mutex* external_service_mutex, external_service* external_service_obj, int tries=1) {
+    void thread_acess_external_service(string plate, timed_mutex* external_service_mutex, external_service* external_service_obj, long long int tries=1) {
         // Tenta acessar o serviço externo no máximo n vezes
-        for (int i = 0; i < tries; i++) {
+        for (long long int i = 0; i < tries; i++) {
             // Tenta acessar o serviço externo por 1 segundo
             if (external_service_mutex->try_lock_for(chrono::seconds(1))) {
                 // Verifica se o carro ainda está na rodovia
@@ -314,7 +314,7 @@ class road {
     // Acessa o serviço externo em uma thread separada
     void access_external_service(string plate,
                                  timed_mutex* external_service_mutex,
-                                 external_service* external_service_obj, int tries=1) {
+                                 external_service* external_service_obj, long long int tries=1) {
         // Cria a thread para acessar o serviço externo
         thread external_service_thread(&road::thread_acess_external_service, this, plate, external_service_mutex, external_service_obj, tries);
         
@@ -336,21 +336,21 @@ class roads {
     mutex number_of_roads_mutex;
     mutex all_cars_info_mutex;
     
-    int number_of_cars_over_speed_limit = 0;
-    int number_of_cars_with_collision_risk = 0;
-    int number_of_cars = 0;
-    int number_of_roads = 0;
+    long long int number_of_cars_over_speed_limit = 0;
+    long long int number_of_cars_with_collision_risk = 0;
+    long long int number_of_cars = 0;
+    long long int number_of_roads = 0;
     vector<car> all_cars_info;
     
-    int time_to_number_of_cars_over_speed_limit = 0;
-    int time_to_number_of_cars_with_collision_risk = 0;
-    int time_to_number_of_cars = 0;
-    int time_to_number_of_roads = 0;
-    int time_to_all_cars_info = 0;
+    long long int time_to_number_of_cars_over_speed_limit = 0;
+    long long int time_to_number_of_cars_with_collision_risk = 0;
+    long long int time_to_number_of_cars = 0;
+    long long int time_to_number_of_roads = 0;
+    long long int time_to_all_cars_info = 0;
 
     roads(){};
 
-    car* update_car(string plate, coords position, string road_name, int new_date) {
+    car* update_car(string plate, coords position, string road_name, long long int new_date) {
         { lock_guard<timed_mutex> lock(external_service_mutex);
             // define a rodovia
             road* curr_road = roads_list.at(road_name);
@@ -366,11 +366,11 @@ class roads {
     }
 
     // Retorna a quatidade de rodovias
-    int get_roads_count() { 
+    long long int get_roads_count() { 
         return roads_list.size(); };
 
     // Atualiza a quantidade de rodovias
-    void update_roads_count(int new_date) {
+    void update_roads_count(long long int new_date) {
         { lock_guard<mutex> lock(number_of_roads_mutex); 
             number_of_roads = get_roads_count();
             time_to_number_of_roads = get_current_time() - new_date;
@@ -378,9 +378,9 @@ class roads {
     };
 
     // Retorna o número de carros das rodovias (soma de todos os carros)
-    int get_cars_count() {
+    long long int get_cars_count() {
         { lock_guard<mutex> lock(roads_mutex); 
-            int cars_count = 0;
+            long long int cars_count = 0;
             for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
                 ++curr_road) {
                 cars_count += curr_road->second->get_cars_count();
@@ -390,7 +390,7 @@ class roads {
     };
 
     // Atualiza o número de carros das rodovias (soma de todos os carros)
-    void update_cars_count(int new_date) {
+    void update_cars_count(long long int new_date) {
         { lock_guard<mutex> lock(number_of_cars_mutex); 
             number_of_cars = get_cars_count();
             time_to_number_of_cars = get_current_time() - new_date;
@@ -399,9 +399,9 @@ class roads {
 
     // Retorna o número de veículos acima do limite de velocidade (soma de todos
     // os carros acima do limite)
-    int get_speeding_cars_count() {
+    long long int get_speeding_cars_count() {
         { lock_guard<mutex> lock(roads_mutex); 
-            int speeding_cars_count = 0;
+            long long int speeding_cars_count = 0;
             for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
                 ++curr_road) {
                 speeding_cars_count += curr_road->second->get_speeding_cars_count();
@@ -411,7 +411,7 @@ class roads {
     };
 
     // Atualiza o número de carros acima do limite de velocidade
-    void update_speeding_cars_count(int new_date) {
+    void update_speeding_cars_count(long long int new_date) {
         { lock_guard<mutex> lock(number_of_cars_over_speed_limit_mutex); 
             number_of_cars_over_speed_limit = get_speeding_cars_count();
             time_to_number_of_cars_over_speed_limit = get_current_time() - new_date;
@@ -420,9 +420,9 @@ class roads {
 
     // Retorna a quantidade de veículos em risco de colisão (soma de todos os
     // carros em risco de colisão)
-    int get_collision_risk_cars_count() {
+    long long int get_collision_risk_cars_count() {
         { lock_guard<mutex> lock(roads_mutex);  
-            int collision_risk_cars_count = 0;
+            long long int collision_risk_cars_count = 0;
             for (auto curr_road = roads_list.begin(); curr_road != roads_list.end();
                 ++curr_road) {
                 collision_risk_cars_count +=
@@ -433,7 +433,7 @@ class roads {
     };
 
     // Atualiza o número de carros em risco de colisão
-    void update_collision_risk_cars_count(int new_date) {
+    void update_collision_risk_cars_count(long long int new_date) {
         { lock_guard<mutex> lock(number_of_cars_with_collision_risk_mutex); 
             number_of_cars_with_collision_risk = get_collision_risk_cars_count();
             time_to_number_of_cars_with_collision_risk = get_current_time() - new_date;
@@ -474,7 +474,7 @@ class roads {
 
     // Atualiza a variável com todas as informações dos carros de todas as 
     // rodovias
-    void update_all_cars_info(int new_date) {
+    void update_all_cars_info(long long int new_date) {
         { lock_guard<mutex> lock(all_cars_info_mutex); 
             all_cars_info = get_all_cars_info();
             time_to_all_cars_info = get_current_time() - new_date;
@@ -482,7 +482,7 @@ class roads {
     };
 
     // Acessa o serviço externo
-    void access_external_service(string plate, string road_name, int tries) {
+    void access_external_service(string plate, string road_name, long long int tries) {
         { lock_guard<timed_mutex> lock(external_service_mutex);
             roads_list.at(road_name)->access_external_service(
                 plate, &external_service_mutex, external_service_obj, tries);
@@ -490,8 +490,8 @@ class roads {
     };
 
     // Cria uma rodovia segundo as especificações
-    void add_road(string road_name, int road_length, int road_width,
-                  int max_speed) {
+    void add_road(string road_name, long long int road_length, long long int road_width,
+                  long long int max_speed) {
         roads_list.insert(pair<string, road*>(
             road_name, new road(road_length, road_width, max_speed)));
     };

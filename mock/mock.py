@@ -497,10 +497,10 @@ class Road():
             This file will be extracted by the ETL process
         '''
         output = Output()
-        output.write(f"{self.name} {index}\n")
-        output.write(f"> {self.name}\n")
-        output.write(f"> {datetime.datetime.now().timestamp()}\n")
-        output.write(f"> {index}\n")
+        output.write(f"{self.name} {index}$")
+        # output.write(f"> {self.name}\n")
+        output.write(f"{int(datetime.datetime.now().timestamp() * 1000)}\n")
+        # output.write(f"> {index}\n")
 
         for lane in range(self.lanes_f):
             for length in range(self.length):
@@ -646,4 +646,4 @@ def empty_roads_dir():
 if __name__ == "__main__":
     empty_roads_dir()
     world = create_world('etl/world.txt')
-    world.loop(10)
+    world.loop(1000)
