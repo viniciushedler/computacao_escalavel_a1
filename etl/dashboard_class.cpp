@@ -24,35 +24,35 @@
 using namespace std;
 
 // Funções de atualização das propriedades do dashboard
-void update_number_roads(int *property, int *tm, int interval, roads *roads_obj) {
+void update_number_roads(long long int *property, long long int *tm, long long int interval, roads *roads_obj) {
     while (true) {
         *property = roads_obj->number_of_roads;
         *tm = roads_obj->time_to_number_of_roads;
         this_thread::sleep_for(chrono::milliseconds(interval));
     }
 }
-void update_number_cars(int *property, int *tm, int interval, roads *roads_obj) {
+void update_number_cars(long long int *property, long long int *tm, long long int interval, roads *roads_obj) {
     while (true) {
         *property = roads_obj->number_of_cars;
         *tm = roads_obj->time_to_number_of_cars;
         this_thread::sleep_for(chrono::milliseconds(interval));
     }
 }
-void update_number_cars_over_speed_limit(int *property, int *tm, int interval, roads *roads_obj) {
+void update_number_cars_over_speed_limit(long long int *property, long long int *tm, long long int interval, roads *roads_obj) {
     while (true) {
         *property = roads_obj->number_of_cars_over_speed_limit;
         *tm = roads_obj->time_to_number_of_cars_over_speed_limit;
         this_thread::sleep_for(chrono::milliseconds(interval));
     }
 }
-void update_number_cars_risk_collision(int *property, int *tm, int interval, roads *roads_obj) {
+void update_number_cars_risk_collision(long long int *property, long long int *tm, long long int interval, roads *roads_obj) {
     while (true) {
         *property = roads_obj->number_of_cars_with_collision_risk;
         *tm = roads_obj->time_to_number_of_cars_with_collision_risk;
         this_thread::sleep_for(chrono::milliseconds(interval));
     }
 }
-void update_all_cars_info(vector<car> *property, int *tm, int interval, roads *roads_obj) {
+void update_all_cars_info(vector<car> *property, long long int *tm, long long int interval, roads *roads_obj) {
     while (true) {
         *property = roads_obj->all_cars_info;
         *tm = roads_obj->time_to_all_cars_info;
@@ -61,22 +61,22 @@ void update_all_cars_info(vector<car> *property, int *tm, int interval, roads *r
 }
 
 class dashboard{
-    int number_roads;
-    int number_cars;
-    int number_cars_over_speed_limit;
-    int number_cars_risk_collision;
+    long long int number_roads;
+    long long int number_cars;
+    long long int number_cars_over_speed_limit;
+    long long int number_cars_risk_collision;
     vector<car> all_cars_info;
-    int tm_number_roads;
-    int tm_number_cars;
-    int tm_number_cars_over_speed_limit;
-    int tm_number_cars_risk_collision;
-    int tm_all_cars_info;
+    long long int tm_number_roads;
+    long long int tm_number_cars;
+    long long int tm_number_cars_over_speed_limit;
+    long long int tm_number_cars_risk_collision;
+    long long int tm_all_cars_info;
 
     // Variáveis para o tempo de execução
-    int time1 = 0;
-    int time2 = 0;
-    int time3 = 0;
-    int n_lines = 0;
+    long long int time1 = 0;
+    long long int time2 = 0;
+    long long int time3 = 0;
+    long long int n_lines = 0;
 
     public:
         bool is_mock_on = false;
@@ -96,7 +96,7 @@ class dashboard{
         };
 
         // Função para atualizar os tempos do dashboard
-        void update_times(int time1, int time2, int n_lines) {
+        void update_times(long long int time1, long long int time2, long long int n_lines) {
             this->time1 = time1;
             this->time2 = time2;
             this->time3 = time3;    
@@ -104,7 +104,7 @@ class dashboard{
         }
 
         // Função para printar os dados dos carros
-        void data_car(int i, vector<car> all_cars_info) {
+        void data_car(long long int i, vector<car> all_cars_info) {
             if (all_cars_info[i].with_external_service_info == true){
                 cout << all_cars_info[i].plate << "\t\t"
                 << all_cars_info[i].position << "  " << "\t" 
@@ -154,7 +154,7 @@ class dashboard{
             cout << BOLD << "Plate\t\tPosition\tSpeed\tAcc\tModel\tYear\tProprietary" << RESET << endl;
             // cout << "Tamanho da lista de carros:" << all_cars_info.size() << endl; // APAGAR
             // cout << "AQUI" << endl; // APAGAR
-            for (int j = 0; (j < all_cars_info.size() && j < 6); j++){
+            for (long long int j = 0; (j < all_cars_info.size() && j < 6); j++){
                 // cout << "AQUI" << endl; // APAGAR
 
                 if (all_cars_info[j].collision_status == 2){
@@ -186,7 +186,7 @@ class dashboard{
         }
 };
 
-void update_dashboard(dashboard* dashboard_obj, int interval) {
+void update_dashboard(dashboard* dashboard_obj, long long int interval) {
     while (true) {
         if (dashboard_obj->is_mock_on == true) {
             dashboard_obj->print();
