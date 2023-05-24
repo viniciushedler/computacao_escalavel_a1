@@ -84,20 +84,16 @@ long long int read_query(string key, vector<string>* values) {
     auto data = bd.get(key);
 
     stringstream file;
-    // cout << "Leitura: " << *data << "<FIM DA LEITURA>" << endl; // APAGAR (mas esse aqui é legal)
 
     string data_str = data.value_or("");
     if (data_str == "") {
         return -1;
     }
     file = stringstream(data_str);
-    // cout << "conseguiu converter o arquivo" << endl; // APAGAR
+    
     while (getline(file, line, '\n')) {
         values->push_back(line);
     }
-    // cout << "conseguiu criar o vetor com o arquivo" << endl; // APAGAR
-    // cout << "tamanho do vetor: " << endl; //APAGAR
-    // cout << values->size() << endl; // APAGAR
 
     if (values->size() == 0) {
         return -1;
@@ -117,29 +113,18 @@ void road_work() {
     long long int cycle = 0;
     string road_name;
     while (true) {
-    // cout << "CHEGOU NA THREAD DA RODOVIA" << endl; // APAGAR
         {
             lock_guard<mutex> guard(curr_road_mutex);
-            // cout << "CHEGOU DENTRO DO MUTEX" << endl; // APAGAR
-            // cout << "curr_road: " << curr_road << endl; // APAGAR
-            // cout << "road_name: " << roads_names[curr_road] << endl; // APAGAR
             road_name = roads_names[curr_road];
-            // cout << "road_name: " << road_name << endl; // APAGAR
             curr_road++;
-            // cout << "curr_road: " << curr_road << endl; // APAGAR
             curr_road %= roads_names.size();
-            // cout << "curr_road: " << curr_road << endl; // APAGAR
         }
-    // cout << "CHEGOU NA THREAD DA RODOVI2A" << endl; // APAGAR
 
         // lê o arquivo
         string file_name = "" + road_name + " " + to_string(cycle);
 
-        // cout << "Lendo arquivo: " << file_name << endl; // APAGAR
-
         // lê o arquivo
         vector<string>* cars_data = new vector<string>();
-        // cout << "cars data recém criado. Tamanho:" << cars_data->size() << "FIM" << endl; // APAGAR
         long long int new_date = read_query(file_name, cars_data);
         if (new_date == -1) {
             continue; // não tem arquivo para ler
