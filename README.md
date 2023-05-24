@@ -35,6 +35,7 @@ COMPUTACAO_ESCALAVEL_A1
 ### Execução
 
 A sequência de execução do trabalho é a seguinte: 
+
 #### Redis
 ##### C++
 Primeiro precisamos instalar o Redis corretamente. Para isso, vamos fazer abaixo um passo a passo para ser instalado no linux (ou wsl).
@@ -96,7 +97,7 @@ sudo make
 sudo make install
 ```
 
-Por fim, o caminho de instalação padrão da biblioteca hiredis é em /usr/local/lib, então é necessário adicionar esse caminho ao arquivo /etc/ld.so.conf - para que o C++ consiga encontrar a biblioteca. Para isso, basta:
+Por fim, o caminho de instalação padrão da biblioteca `hiredis` é em /usr/local/lib, então é necessário adicionar esse caminho ao arquivo /etc/ld.so.conf - para que o C++ consiga encontrar a biblioteca. Para isso, basta:
 - Rodar o comando:
 ```
 sudo vi /etc/ld.so.conf
@@ -180,6 +181,15 @@ Além disso, o Dashboard apresenta apenas informações de 6 carros por ciclo, p
 
 Vale observar que deixamos o _mock_ gerando "apenas" 5 mil arquivos, isso é, gerando dados de 5 mil ciclos. Isso foi mais que o suficiente para os testes no geral, mas se for desejado podemos alterar a última linha em `world.loop(5000)` para outro número de parâmetro ou simplesmente deixar `world.loop()`, sem o parâmetro de quantos arquivos gerar no máximo, para que o mock gere os dados dos ciclos até que seu processo seja encerrado (pelo terminal - geralmente com "CTRL + C"). Devemos lembrar que nos testes indicados serão abertos 50 terminais e cada um deles irá gerar 5 mil arquivos, então o número de ciclos será 50 vezes maior que o número de ciclos que o mock irá gerar (o que impacta no processamento da máquina e nos dados armazenados no Redis).
 
+#### Conexão em mais de um computador
+Para que a conexão seja feita em mais de um computador, é necessário alterar o arquivo `server/server.py` para que o servidor seja iniciado com o IP da máquina que irá executar o servidor e também o ip no `mock/mock.py` para enviar os dados para o ip certo. Para isso, basta alterar a linha no começo dos documentos onde é informado o ip, na variável `IP_TO_SEND`.
+
+O ip pode ser obtido com o comando `ifconfig` no terminal.
+
+Em nossos testes (e pelas nossas pesquisas) não conseguimos fazer a conexão com várias máquinas utilizando o WSL, pois por ele ser um subsistema (e não projetado para esse fim) ele tem outras camadas que alteram o ip e não conseguimos enviar os dados e escutar dados recebidos por ele. Conseguimos realizar os testes com o servidor rodando em um computador com Linux (no caso um Ubuntu 22.04 LTS) e o mock rodando em um computador com Windows (no caso o Windows 11). Dessa forma, cada parte das instruções anteriores devem ser realizadas em um computador diferente, para as respectivas finalidades.
+
 #### Gráfico de tempo de processamento
 Por fim, para gerar o gráfico com o tempo de processamento basta executar as células do notebook python `time_analyses.ipynb`. Vale observar que é necessário ter os pacotes `pandas` e `seaborn`, que podem ser instalados com `pip install <nome-da-biblioteca>`.
+
+
 
