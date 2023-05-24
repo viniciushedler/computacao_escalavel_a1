@@ -21,9 +21,12 @@ import highway_pb2
 import grpc
 import sys
 
+# Set the IP to send the data to + port
+IP_TO_SEND = "192.168.0.74:50051"
+
 def send_message(message_data):
 
-    with grpc.insecure_channel('0.0.0.0:50051') as channel:
+    with grpc.insecure_channel(IP_TO_SEND) as channel:
         
         stub = highway_pb2_grpc.HighwaySenderStub(channel)
 
