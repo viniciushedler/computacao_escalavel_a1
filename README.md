@@ -120,7 +120,7 @@ sudo ldconfig
 ##### Instalação do Redis - Cliente para o Python
 Para se comunicar com o Redis através do Python, utilizamos a biblioteca redis. Para instalar a biblioteca, basta rodar o comando:
 ```
-pip3 install redis
+pip install redis
 ```
 
 E também:
@@ -153,7 +153,7 @@ Vamos fazer a criação de mundo para a execução do simulador e execução do 
 Para executar o simulador, bastar estar no diretório raiz do projeto e executar o script de criação do mundo:
 
 ```bash
-python world_creator.py
+python3 world_creator.py
 ```
 
 #### Executar o ETL
@@ -169,7 +169,7 @@ Nesse momento, o ETL já está preparado para receber os dados, realizando leitu
 Para executar o simulador, basta estar no diretório raiz do projeto e executar o comando:
 
 ```
-python mult_terminals.py
+python3 mult_terminals.py
 ```
 
 Com isso, devem ser abertos 50 terminais em paralelo no mesmo computador, que vão popular o banco de dados com os dados do simulador, para 50 rodovias diferentes.
