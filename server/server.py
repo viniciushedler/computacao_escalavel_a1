@@ -26,7 +26,7 @@ class HighwaySenderServicer(highway_pb2_grpc.HighwaySenderServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     highway_pb2_grpc.add_HighwaySenderServicer_to_server(HighwaySenderServicer(), server)
-    server.add_insecure_port("localhost:50051")
+    server.add_insecure_port("0.0.0.0:50051")
     server.start()
     server.wait_for_termination()
 
